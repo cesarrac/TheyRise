@@ -21,21 +21,23 @@ public class Terraformer_Handler : MonoBehaviour {
 	private State _state = State.IDLING;
 	public State curState { get { return _state; }}
 
-	public Enemy_WaveSpawner waveSpawner; // control over the spawning of enemy waves
+	public Enemy_WAVESpawnerV2 waveSpawner; // control over the spawning of enemy waves
 
 
 	void Awake()
 	{
 		currProgressTime = 0;
 
-		waveSpawner = GameObject.FindGameObjectWithTag ("Spawner").GetComponent<Enemy_WaveSpawner> ();
-		waveSpawner.terraformer = this;
+		if (GameObject.FindGameObjectWithTag ("Spawner") != null) {
+			waveSpawner = GameObject.FindGameObjectWithTag ("Spawner").GetComponent<Enemy_WAVESpawnerV2> ();
+			waveSpawner.terraformer = this;
+		}
 	}
 	
 	void Update () 
 	{
-	
-		MyStateMachine(_state);
+		if (waveSpawner)
+			MyStateMachine(_state);
 	}
 
 	void MyStateMachine(State _curState)

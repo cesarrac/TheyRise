@@ -44,6 +44,8 @@ public class Player_MoveHandler : MonoBehaviour {
 
 	private bool isDashing;
 
+	public Transform myWeapon;
+
 	void Awake()
 	{
 		anim = GetComponent<Animator> ();
@@ -53,6 +55,8 @@ public class Player_MoveHandler : MonoBehaviour {
 		mStats.Init ();
 	}
 
+
+
 	void Start () {
 
 		lastTapTime = 0;
@@ -60,17 +64,24 @@ public class Player_MoveHandler : MonoBehaviour {
 		mapX = resourceGrid.mapSizeX;
 		mapY = resourceGrid.mapSizeY;
 	}
-	
+
+
+
 
 	void Update () {
 		debugState = _state;
 
 		MyStateMachine (_state);
 
-		// the move vector
+	}
+
+	void FixedUpdate()
+	{
+		// Store the axis Inputs in a Vector 2
 		move_vector = new Vector2 (Input.GetAxisRaw ("Horizontal"), Input.GetAxisRaw ("Vertical"));
 
-
+		if (myWeapon)
+			MouseWeaponAim (myWeapon);
 	}
 
 	void MyStateMachine (State _curState){
@@ -79,10 +90,6 @@ public class Player_MoveHandler : MonoBehaviour {
 			// attack
 			break;
 		case State.IDLING:
-
-			// no action until player tries to move unit
-//			if (move_vector != Vector2.zero)
-//				_state = State.MOVING;
 
 			// If Player tries to move
 			if (Input.GetKeyDown (KeyCode.W) || Input.GetKeyDown (KeyCode.A) || Input.GetKeyDown (KeyCode.S) || Input.GetKeyDown (KeyCode.D)) {
@@ -146,6 +153,8 @@ public class Player_MoveHandler : MonoBehaviour {
 		rBody.MovePosition(rBody.position + move_vector * _curSpeed * Time.deltaTime);
 	}
 
+
+
 	bool CheckWalkabale(Vector3 pos){
 		int posX = Mathf.RoundToInt (pos.x);
 		int posY = Mathf.RoundToInt (pos.y);
@@ -155,6 +164,16 @@ public class Player_MoveHandler : MonoBehaviour {
 		} else {
 			return false;
 		}
+
+	}
+
+	void MouseWeaponAim(Transform weapon)
+	{
+		var mousePos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+		Quaternion rot = Quaternion.LookRotation (weapon.position - mousePos, Vector3.forward);
+		weapon.rotation = rot;
+		Vector3 facingRot = new Vector3 (0, 0, weapon.eulerAngles.z);
+		weapon.eulerAngles = facingRot;
 
 	}
 }

@@ -44,7 +44,7 @@ public class Enemy_SpawnIndicator : MonoBehaviour {
 	private Text x1, x2, x3; // the X that goes before the count
 
 	[HideInInspector]
-	public Enemy_WaveSpawner enemyWaveSpawner;
+	public Enemy_WAVESpawnerV2 enemyWaveSpawner;
 
 	// Accessing Player Resources to change Credits booster when Force Spawn is called
 	public Player_ResourceManager playerResources;
@@ -141,7 +141,7 @@ public class Enemy_SpawnIndicator : MonoBehaviour {
 	}
 
 	public void ForceSpawn(){
-		enemyWaveSpawner.ForceStartAttack ();
+//		enemyWaveSpawner.ForceStartAttack ();
 
 		// Boost credit rewards for calling enemies early
 		playerResources.SetBooster ();

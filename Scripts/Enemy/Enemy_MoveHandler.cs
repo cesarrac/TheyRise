@@ -34,7 +34,7 @@ public class Enemy_MoveHandler : MonoBehaviour {
 
 //	public float movementSpeed = 1.0F;
 
-	public bool moving;
+
 
 	public int spwnPtIndex;
 	public SpawnPoint_Handler spwnPtHandler;
@@ -60,7 +60,7 @@ public class Enemy_MoveHandler : MonoBehaviour {
 
 	public bool unitInitialized { get; private set;} 
 
-	public enum State { IDLING, MOVING, MOVING_BACK, DISPERSING, AVOIDING, ATTACKING };
+	public enum State { IDLING, MOVING, MOVING_BACK, DISPERSING, AVOIDING, ATTACKING, FROZEN };
 
 	private State _state = State.IDLING;
 
@@ -73,6 +73,9 @@ public class Enemy_MoveHandler : MonoBehaviour {
 	private bool isAvoider; // if unit is an Avoider, they won't attack tiles, just go around them
 
 	public State debugState;
+
+	[HideInInspector]
+	public float frozenTime;
 	
 	void Start () 
 	{
@@ -150,7 +153,6 @@ public class Enemy_MoveHandler : MonoBehaviour {
 				}
 
 				// Now that all Nodes in Current Path have been set, start moving
-				moving = true;
 				_state = State.MOVING;
 
 			}else{// Kamikaze Path:
@@ -169,7 +171,7 @@ public class Enemy_MoveHandler : MonoBehaviour {
 				}
 
 				// All Nodes in Current Path are set, start moving
-//				moving = true;
+//				
 				// Change state:
 				_state = State.MOVING;
 			}
@@ -381,6 +383,7 @@ public class Enemy_MoveHandler : MonoBehaviour {
 		switch (_curState) {
 		case State.IDLING:
 			// just spawned, not moving & not attacking
+
 			break;
 		case State.MOVING:
 			// Move
@@ -426,8 +429,18 @@ public class Enemy_MoveHandler : MonoBehaviour {
 				}
 			}
 			break;
+
+		case State.FROZEN:
+			// If the Player freezes this unit it can't move for an ammount of time = to the frozenTime variable
+			if (frozenTime <= 0){
+				// go back to moving
+				_state = State.MOVING;
+			}else{
+				frozenTime -= Time.deltaTime;
+			}
+			break;
 		default:
-			state = State.IDLING;
+			_state = State.IDLING;
 			break;
 		}
 
@@ -473,7 +486,7 @@ public class Enemy_MoveHandler : MonoBehaviour {
 	}
 
 	// Move through Path:
-	public void MoveToNextTile(){
+	void MoveToNextTile(){
 		if (currentPath == null) {
 			return;
 		}
