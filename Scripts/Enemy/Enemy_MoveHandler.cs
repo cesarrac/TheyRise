@@ -142,11 +142,11 @@ public class Enemy_MoveHandler : MonoBehaviour {
 				currentPath = new List<Node>();
 
 				// Loop through each Node of the corresponding path and Add Node to Current Path
-				for (int x = 0; x < spwnPtHandler.path[spwnPtIndex].Count; x++){
-					currentPath.Add(spwnPtHandler.path[spwnPtIndex][x]);
+				for (int x = 0; x < spwnPtHandler.paths[spwnPtIndex].Count; x++){
+					currentPath.Add(spwnPtHandler.paths[spwnPtIndex][x]);
 
 					// When the Loop reaches the last Node store the value as a Vector3 destination
-					if (x == spwnPtHandler.path[spwnPtIndex].Count - 1){
+					if (x == spwnPtHandler.paths[spwnPtIndex].Count - 1){
 
 						destination = new Vector3( currentPath[x].x, currentPath[x].y, 0.0f);
 					}
@@ -161,11 +161,11 @@ public class Enemy_MoveHandler : MonoBehaviour {
 				currentPath = new List<Node>();
 
 				// Loop through each Node in Kamikaze path and add Nodes to Current Path
-				for (int x = 0; x < spwnPtHandler.kamikazePath[spwnPtIndex].Count; x++){
-					currentPath.Add(spwnPtHandler.kamikazePath[spwnPtIndex][x]);
+				for (int x = 0; x < spwnPtHandler.kamikazePaths[spwnPtIndex].Count; x++){
+					currentPath.Add(spwnPtHandler.kamikazePaths[spwnPtIndex][x]);
 
 					// As above, last Node is stored in Vector3 destination
-					if (x == spwnPtHandler.kamikazePath[spwnPtIndex].Count - 1){
+					if (x == spwnPtHandler.kamikazePaths[spwnPtIndex].Count - 1){
 						destination = new Vector3( currentPath[x].x, currentPath[x].y, 0.0f);
 					}
 				}
@@ -324,17 +324,17 @@ public class Enemy_MoveHandler : MonoBehaviour {
 		if (spwnPtHandler != null) {
 
 			currentPath = new List<Node>();
-			for (int x = 0; x < spwnPtHandler.path[spwnPtIndex].Count; x++){
+			for (int x = 0; x < spwnPtHandler.paths[spwnPtIndex].Count; x++){
 				// find my position on the path
-				if(spwnPtHandler.path[spwnPtIndex][x].x == posX && spwnPtHandler.path[spwnPtIndex][x].y == posY){
+				if(spwnPtHandler.paths[spwnPtIndex][x].x == posX && spwnPtHandler.paths[spwnPtIndex][x].y == posY){
 					Debug.Log("Found my node at pathtoCapital" + x);
 					myPosIndexInPath = x;
 					break;
 				}
 			}
 			if (myPosIndexInPath > 0){ // At this point Index should never be 0 if we found our position in the path
-				for (int i = myPosIndexInPath; i < spwnPtHandler.path[spwnPtIndex].Count; i++){
-					currentPath.Add(spwnPtHandler.path[spwnPtIndex][i]);
+				for (int i = myPosIndexInPath; i < spwnPtHandler.paths[spwnPtIndex].Count; i++){
+					currentPath.Add(spwnPtHandler.paths[spwnPtIndex][i]);
 				}
 
 				// Change speed back to original speed

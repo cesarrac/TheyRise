@@ -74,7 +74,7 @@ public class DiscoverTile : MonoBehaviour {
 
 //		// IF TILE IS NOT A ROCK OR EMPTY, IT'S A BUILDING,
 			// so it will have a Building Click Handler that needs its pos X and pos Y
-			if (tileType != TileData.Types.rock && tileType != TileData.Types.empty) {
+			if (tileType != TileData.Types.rock && tileType != TileData.Types.empty && tileType != TileData.Types.mineral) {
 				Building_ClickHandler bClickHandler = tileToSpawn.GetComponent<Building_ClickHandler> ();
 				bClickHandler.mapPosX = mapPosX;
 				bClickHandler.mapPosY = mapPosY;

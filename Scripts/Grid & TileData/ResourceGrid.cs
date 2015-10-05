@@ -29,10 +29,10 @@ public class ResourceGrid : MonoBehaviour{
 	
 
 	public int level;
-	public Vector2[] rocksOnLevel; // used to initialize the positions of rocks on the grid
-	public Vector2[] mineralsOnLevel; // used to initialize the positions of minerals on the grid
-	public int totalVertWaterLines, totalHorizWaterLines;
-	public Vector2[] vertWaterLines, horizWaterLines; // used to initialize WATER tiles
+//	public Vector2[] rocksOnLevel; // used to initialize the positions of rocks on the grid
+//	public Vector2[] mineralsOnLevel; // used to initialize the positions of minerals on the grid
+//	public int totalVertWaterLines, totalHorizWaterLines;
+//	public Vector2[] vertWaterLines, horizWaterLines; // used to initialize WATER tiles
 
 	public Transform tileHolder; // transform to hold Instantiated tiles in Hierarchy
 
@@ -64,6 +64,19 @@ public class ResourceGrid : MonoBehaviour{
 	public Text coordinatesText, tiletypeText;
 
 
+//	private int _totalRocksOnMap;
+//	public int totalRocksOnMap { get {return _totalRocksOnMap;} set {_totalRocksOnMap = Mathf.Clamp(value, 5, 15);}}
+//	private int _totalMineralsOnMap;
+//	public int totalMineralsOnMap { get {return _totalMineralsOnMap;} set {_totalMineralsOnMap = Mathf.Clamp(value, 5, 15);}}
+	[Range (5, 15)]
+	public int totalRocksOnMap;
+	[Range (6, 18)]
+	public int totalMineralsOnMap;
+
+	// Center of the map
+	public int centerPosX = 0;
+	public int centerPosY = 0;
+
 	void Start () 
 	{
 
@@ -71,17 +84,16 @@ public class ResourceGrid : MonoBehaviour{
 		if (playerResources == null)
 			playerResources = GameObject.FindGameObjectWithTag ("Capital").GetComponent<Player_ResourceManager> ();
 
+//		InitCapitalAndMinerals ();
+
 		// Initialize Tile Data array with this map size
-		tiles = new TileData[mapSizeX, mapSizeY];
+//		tiles = new TileData[mapSizeX, mapSizeY];
 
 		// Initialize spawned Tiles array, all values will be set to null until tiles are spawned
-		spawnedTiles = new GameObject[mapSizeX, mapSizeY];
+//		spawnedTiles = new GameObject[mapSizeX, mapSizeY];
 
 		// Initialize the Grid, filling tiles positions with Capital, Rocks, and Water
-		InitGrid ();
-
-		// This spawns the Initial Capital tile at the start of the level
-		InitVisualGrid ();
+//		InitGrid ();
 
 		// This creates the Initial Pathfinding graph taking into account unwakable tiles already spawned (ex. Rock, Water, Capital)
 		InitPathFindingGraph ();
@@ -101,50 +113,309 @@ public class ResourceGrid : MonoBehaviour{
 					tiletypeText.text = "Type: " + tiles[mX, mY].tileType;
 				}
 			}
-
-//			Debug.Log("Coords: x: " + mX + " y: " + mY);
-//
-//				Debug.Log("Tile type: " + tiles[mX, mY].tileType);
+//			Debug.Log("Tile is of type: " + tiles[mX, mY].tileType);
 		}
 	}
 	
-	void InitGrid(){
-		for (int x = 0; x < mapSizeX; x++) {
-			for (int y = 0; y < mapSizeY; y++) {
-				tiles[x,y]= new TileData(TileData.Types.empty, 0, 1); // default to empty tile
+//	void InitGrid(){
+//		for (int x = 0; x < mapSizeX; x++) {
+//			for (int y = 0; y < mapSizeY; y++) {
+//				tiles[x,y]= new TileData(TileData.Types.empty, 0, 1); // default to empty tile
+//			}
+//		}
+//
+//		// SPAWN PLAYER CAPITAL HERE:
+//		tiles [capitalSpawnX, capitalSpawnY] = new TileData("Capital", TileData.Types.capital, 0, 10000, 200, 5,0,0,0,0);
+//		SpawnDiscoverTile(tiles [capitalSpawnX, capitalSpawnY].tileName, new Vector3(capitalSpawnX, capitalSpawnY, 0.0f),tiles [capitalSpawnX, capitalSpawnY].tileType); 
+//
+//		InitRockMineralTiles ();
+//		InitWaterTiles ();
+//	}
+
+	public class OrePatch
+	{
+		public int leadPositionX;
+		public int leadPositionY;
+		int pDensity;
+		public int density {get{return pDensity;} set{pDensity = Mathf.Clamp(value, 1, 5);}}
+		public int totalInPatch;
+		public OreTile[] neighborOreTiles;
+
+
+		public OrePatch(int xPos, int yPos, int _density)
+		{
+			leadPositionX = xPos;
+			leadPositionY = yPos;
+			density = _density;
+			totalInPatch = _density;
+		}
+
+		public void SetFormation()
+		{
+			switch (density) {
+			case 1:
+				// This patch only has one rock or mineral
+				break;
+			case 2:
+				// This patch contains two, so neighbor ore array = 1
+				neighborOreTiles = new OreTile[1];
+				// This is the position the neighbor ore can be placed on
+				neighborOreTiles[0] = new OreTile(leadPositionX + 2, leadPositionY - 1);
+				break;
+			case 3:
+				neighborOreTiles = new OreTile[2];
+				neighborOreTiles[0] = new OreTile(leadPositionX + 2, leadPositionY - 2);
+				neighborOreTiles[1] = new OreTile(leadPositionX, leadPositionY - 1);
+				break;
+			case 4:
+				neighborOreTiles = new OreTile[3];
+				neighborOreTiles[0] = new OreTile(leadPositionX, leadPositionY + 1);
+				neighborOreTiles[1] = new OreTile(leadPositionX, leadPositionY - 1);
+				neighborOreTiles[2] = new OreTile(leadPositionX -2 , leadPositionY);
+				break;
+			case 5:
+				neighborOreTiles = new OreTile[4];
+				neighborOreTiles[0] = new OreTile(leadPositionX -2, leadPositionY);
+				neighborOreTiles[1] = new OreTile(leadPositionX + 2, leadPositionY);
+				neighborOreTiles[2] = new OreTile(leadPositionX + 1 , leadPositionY + 1);
+				neighborOreTiles[3] = new OreTile(leadPositionX , leadPositionY + 2);
+				break;
+			default:
+				break;
+				
 			}
 		}
 
+		public class OreTile
+		{
+			public int posX;
+			public int posY;
+
+			public OreTile(int x, int y)
+			{
+				posX = x;
+				posY = y;
+			}
+		}
+	}
+
+	public void InitCapitalAndMinerals()
+	{
 		// SPAWN PLAYER CAPITAL HERE:
 		tiles [capitalSpawnX, capitalSpawnY] = new TileData("Capital", TileData.Types.capital, 0, 10000, 200, 5,0,0,0,0);
+		SpawnDiscoverTile(tiles [capitalSpawnX, capitalSpawnY].tileName, new Vector3(capitalSpawnX, capitalSpawnY, 0.0f),tiles [capitalSpawnX, capitalSpawnY].tileType); 
 
-		InitRockMineralTiles ();
-		InitWaterTiles ();
+
+		InitializeRockandMinerals ();
+
 	}
 
-	void InitRockMineralTiles(){
-		for (int i = 0; i < rocksOnLevel.Length; i ++) {
-			tiles[(int)rocksOnLevel[i].x,(int) rocksOnLevel[i].y] = new TileData(TileData.Types.rock, 3000, 3);
-		}
-		for (int j = 0; j < mineralsOnLevel.Length; j ++) {
-			tiles[(int)mineralsOnLevel[j].x,(int) mineralsOnLevel[j].y] = new TileData(TileData.Types.mineral, 5000, 3);
-		}
-	}
-	void InitWaterTiles(){
-		// one straight line up Vertical
-		for (int i = 0; i < totalVertWaterLines; i++) {
-			for (int x = (int)vertWaterLines[i].x; x == (int)vertWaterLines[0].x; x++) {
-				for (int y =0; y < vertWaterLines[i].y; y++) {
-					tiles [x, y] =  new TileData(TileData.Types.water, 0, 10000);
+	void InitializeRockandMinerals()
+	{
+		int curRockCount = totalRocksOnMap;
+
+		// First pick a center position
+
+		// Make sure the center pos is an empty land tile
+//		if (tiles [mapSizeX / 2, mapSizeY / 2].tileType == TileData.Types.empty) {
+//			centerPosX = mapSizeX / 2;
+//			centerPosY = mapSizeY / 2;
+//		} else {
+//			// Try one tile over
+//			if (tiles [(mapSizeX / 2) + 1, mapSizeY / 2].tileType == TileData.Types.empty){
+//				centerPosX = (mapSizeX / 2) + 1;
+//				centerPosY = mapSizeY / 2;
+//			}else if (tiles [mapSizeX / 2, (mapSizeY / 2) + 1].tileType == TileData.Types.empty){
+//				centerPosX = mapSizeX / 2;
+//				centerPosY = (mapSizeY / 2) + 1;
+//			}
+//		}
+		centerPosX = mapSizeX / 2;
+		centerPosY = mapSizeY / 2;
+		// Find the bottom left corner of the island, a tile that is an empty land
+
+		int firstLandTilePosX = 0;
+		int firstLandTilePosY = 0;
+
+
+//		for (int x =0; x < mapSizeX; x++) {
+//			for (int y =0; y < mapSizeY; y++){
+//				if (tiles[x,y].tileType == TileData.Types.empty){
+//					firstLandTilePosX = x;
+//					firstLandTilePosY = y;
+//					break;
+//				}
+//			}
+//		}
+//
+//		Debug.Log ("First land tile at: " + firstLandTilePosX + "," + firstLandTilePosY);
+		// Loop through all the rocks
+		for (int i = 0; i < totalRocksOnMap; i++) {
+//			
+			if (i== 0){
+				SetNewOrePatch(centerPosX, centerPosY);
+			}else{
+				// pick up/left, up/right, down/left, down/right
+				int pick = Random.Range(0,6);
+				if (pick == 1){
+					SetNewOrePatch(centerPosX - 2, centerPosY + 2);
+				}else if (pick == 2){
+					SetNewOrePatch(centerPosX + 2, centerPosY + 2);
+
+				}else if (pick == 3){
+					SetNewOrePatch(centerPosX + 2, centerPosY - 2);
+				}else if (pick == 4){
+					SetNewOrePatch(centerPosX - 2, centerPosY - 2);
+				}else {
+					SetNewOrePatch(centerPosX + 3, centerPosY - 2);
 				}
+
+
 			}
 		}
-	
-		if (totalHorizWaterLines > 0) {
-			for (int i = 0; i < totalHorizWaterLines; i++) {
-				for (int y = (int)horizWaterLines[i].y; y == (int)horizWaterLines[i].y; y++){
-					for (int x = 0; x < horizWaterLines[i].x; x++) {
-						tiles [x, y] =  new TileData(TileData.Types.water, 0, 10000);
+
+//		// Loop through all the minerals
+//		for (int j = 0; j < totalMineralsOnMap; j++) {
+//
+//		}
+	}
+
+	bool CheckForWater (int x, int y)
+	{
+		// TODO: Have to make sure that all these calculations below don't result in going out of map bounds
+
+
+		if (CheckIsInMapBounds (x - 1, y)) {
+			if (tiles [x - 1, y].tileType == TileData.Types.water) {
+				return true;
+			} else {
+				return false;
+			}
+		} else if (CheckIsInMapBounds (x - 2, y)) {
+			if (tiles [x - 2, y].tileType == TileData.Types.water) {
+				return true;
+			} else {
+				return false;
+			} 
+		} else if (CheckIsInMapBounds (x - 3, y)) {
+			if (tiles [x - 3, y].tileType == TileData.Types.water) {
+				return true;
+			} else {
+				return false;
+			} 
+		}else if (CheckIsInMapBounds (x + 1, y)) {
+			if (tiles [x + 1, y].tileType == TileData.Types.water) {
+				return true;
+			}else{
+				return false;
+			} 
+		}else if (CheckIsInMapBounds (x + 2, y)) {
+			if (tiles [x + 2, y].tileType == TileData.Types.water) {
+				return true;
+			}else{
+				return false;
+			} 
+		}else if (CheckIsInMapBounds (x + 3, y)) {
+			if (tiles [x + 3, y].tileType == TileData.Types.water) {
+				return true;
+			}else{
+				return false;
+			} 
+		}else if (CheckIsInMapBounds (x, y - 1)) {
+			if (tiles [x, y - 1].tileType == TileData.Types.water) {
+				return true;
+			}else{
+				return false;
+			} 
+		}else if (CheckIsInMapBounds (x, y - 2)) {
+			if (tiles [x, y - 2].tileType == TileData.Types.water) {
+				return true;
+			}else{
+				return false;
+			} 
+		}else if (CheckIsInMapBounds (x, y - 3)) {
+			if (tiles [x, y - 3].tileType == TileData.Types.water) {
+				return true;
+			}else{
+				return false;
+			} 
+		}else if (CheckIsInMapBounds (x, y + 1)) {
+			if (tiles [x, y + 1].tileType == TileData.Types.water) {
+				return true;
+			}else{
+				return false;
+			} 
+		}else if (CheckIsInMapBounds (x, y + 2)) {
+			if (tiles [x, y + 2].tileType == TileData.Types.water) {
+				return true;
+			}else{
+				return false;
+			} 
+		}else if (CheckIsInMapBounds (x, y + 3)) {
+			if (tiles [x, y + 3].tileType == TileData.Types.water) {
+				return true;
+			}else{
+				return false;
+			} 
+		}else {
+			return true;
+		}
+	}
+
+	bool CheckIsInMapBounds(int x, int y)
+	{
+		if (x < mapSizeX && y < mapSizeY && x > 0 && y > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	void SetNewOrePatch(int leadX, int leadY)
+	{
+		// first make sure that there is NO WATER tiles around this lead tile
+		if (!CheckForWater (leadX, leadY)) {
+			Debug.Log ("Found tile with no water around it!");
+			// Calculate the distance from this lead tile to the center of the map,
+			// the closer to the center the DENSER a patch of ore will be
+			float distance = Vector2.Distance (new Vector2 (leadX, leadY), new Vector2 (centerPosX, centerPosY)); 
+			int density = 0;
+			if (distance >= mapSizeX / 4) {
+				// pick a 1 or 2 density
+				float pick = Random.Range (1, 3);
+				density = (int)pick;
+			} else if (distance <= mapSizeX / 4) {
+				// pick between 4 or 5 density
+				float pick = Random.Range (3, 5);
+				density = (int)pick;
+			} else {
+				density = 5;
+			}
+			OrePatch patch = new OrePatch (leadX, leadY, density);
+			patch.SetFormation ();
+			PlaceOrePatch(patch);
+		} else {
+			Debug.Log("Could not place ore patch because " + leadX + "," + leadY+ " is a shore!");
+		}
+	}
+
+	void PlaceOrePatch(OrePatch _patch)
+	{
+		// place the lead ore if there is no rock already on that tile
+		if (tiles [_patch.leadPositionX, _patch.leadPositionY].tileType == TileData.Types.empty) {
+			tiles [_patch.leadPositionX, _patch.leadPositionY] = new TileData (TileData.Types.rock, 6000, 10000);
+			SpawnDiscoverTile ("rock", new Vector3 (_patch.leadPositionX, _patch.leadPositionY, 0.0F), TileData.Types.rock);
+			Debug.Log ("# of neighbor tiles: " + _patch.neighborOreTiles.Length);
+		}
+		if (_patch.neighborOreTiles != null && _patch.neighborOreTiles.Length > 0) {
+			// place the neighbors in their positions
+			for (int i = 0; i < _patch.neighborOreTiles.Length; i++){
+				if (CheckIsInMapBounds(_patch.neighborOreTiles[i].posX, _patch.neighborOreTiles[i].posY)){
+					// Place this rock if there isn't a rock already on this tile
+					if (tiles[_patch.neighborOreTiles[i].posX, _patch.neighborOreTiles[i].posY].tileType == TileData.Types.empty){
+						tiles[_patch.neighborOreTiles[i].posX, _patch.neighborOreTiles[i].posY]=new TileData( TileData.Types.rock, 6000, 10000);
+						SpawnDiscoverTile ("rock", new Vector3 (_patch.neighborOreTiles[i].posX,
+						                                        _patch.neighborOreTiles[i].posY, 0.0F), TileData.Types.rock);
 					}
 				}
 			}
@@ -152,17 +423,7 @@ public class ResourceGrid : MonoBehaviour{
 
 	}
 
-	void InitVisualGrid(){
-		for (int x = 0; x < mapSizeX; x++) {
-			for (int y = 0; y < mapSizeY; y++) {
-					//				The ONLY TILES VISIBLE at the start of the level:
-				if (tiles [x, y].tileType==TileData.Types.capital){
-					SpawnDiscoverTile(tiles [x, y].tileName, new Vector3(x, y, 0.0f),tiles [x, y].tileType); 
-				}
-				
-			}
-		}
-	}
+	
 
 	/// <summary>
 	/// Damages the tile.

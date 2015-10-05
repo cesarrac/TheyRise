@@ -65,7 +65,7 @@ public class TileData  {
 		maxResourceQuantity = resourceQuantity;
 		movementCost = moveCost;
 
-		if (type != Types.rock && type != Types.empty) {
+		if (type != Types.empty) {
 			isWalkable = false;
 		}
 		tileName = type.ToString ();

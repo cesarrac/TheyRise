@@ -7,8 +7,8 @@ public class SpawnPoint_Handler : MonoBehaviour {
 	public ResourceGrid resourceGrid;
 	public Vector2[] spawnPositions;
 
-	public List<Node>[] kamikazePath;
-	public List<Node>[] path;
+	public List<Node>[] kamikazePaths;
+	public List<Node>[] paths;
 
 	public Vector2[] kamikazeDestinations;
 
@@ -18,9 +18,23 @@ public class SpawnPoint_Handler : MonoBehaviour {
 	private float randomKamikazeX;
 	private float randomKamikazeY;
 
+	Queue<List<Node>> pathQueue = new Queue<List<Node>> ();
+	Queue<List<Node>> kamikazePathQueue = new Queue<List<Node>> ();
+
 	void Awake(){
-		path = new List<Node>[spawnPositions.Length];
-		kamikazePath = new List<Node>[spawnPositions.Length]; 
+		paths = new List<Node>[spawnPositions.Length];
+		kamikazePaths = new List<Node>[spawnPositions.Length]; 
+
+		// Store the paths (List<Node>) in a queue 
+//
+//		foreach (List<Node> path in paths) {
+//			pathQueue.Enqueue(path);
+//		}
+//
+//
+//		foreach (List<Node> path in paths) {
+//			kamikazePathQueue.Enqueue(path);
+//		}
 
 		// Create some random Kamikaze positions
 		RandomKamikaze ();
@@ -61,22 +75,32 @@ public class SpawnPoint_Handler : MonoBehaviour {
 
 
 	}
+
+	void GetNextInQueue ()
+	{
+
+	}
+
+	void GetPathFromGrid(int spawnPosX, int spawnPosY)
+	{
+		
+	}
 	void FillPath(List<Node> currPath, int i, bool trueIfKamikaze){
 
 		if (!trueIfKamikaze) {
-			path [i] = new List<Node> ();
+			paths [i] = new List<Node> ();
 			for (int y = 0; y < currPath.Count; y++) {
-				path [i].Add (currPath [y]);
+				paths [i].Add (currPath [y]);
 			}
 
-			Debug.Log ("PATH TO CAPITAL: " + i + " From: " + path [i] [0].x + " " + path [i] [0].y + " To: " + path [i] [path [i].Count - 1].x + " " + path [i] [path [i].Count - 1].y);
+//			Debug.Log ("PATH TO CAPITAL: " + i + " From: " + paths [i] [0].x + " " + paths [i] [0].y + " To: " + paths [i] [paths [i].Count - 1].x + " " + paths [i] [paths [i].Count - 1].y);
 
 		} else {
-			kamikazePath [i] = new List<Node> ();
+			kamikazePaths [i] = new List<Node> ();
 			for (int y = 0; y < currPath.Count; y++) {
-				kamikazePath [i].Add (currPath [y]);
+				kamikazePaths [i].Add (currPath [y]);
 			}
-			Debug.Log ("KAMIKAZE PATH: " + i + " From: " + kamikazePath [i] [0].x + " " + kamikazePath [i] [0].y + " To: " + kamikazePath [i] [kamikazePath [i].Count - 1].x + " " + kamikazePath [i] [kamikazePath [i].Count - 1].y);
+//			Debug.Log ("KAMIKAZE PATH: " + i + " From: " + kamikazePaths [i] [0].x + " " + kamikazePaths [i] [0].y + " To: " + kamikazePaths [i] [kamikazePaths [i].Count - 1].x + " " + kamikazePaths [i] [kamikazePaths [i].Count - 1].y);
 
 		}
 	}
