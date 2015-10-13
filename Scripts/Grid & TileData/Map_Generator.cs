@@ -20,6 +20,8 @@ public class Map_Generator : MonoBehaviour {
 	
 	void Start()
 	{
+
+
 		GenerateMap ();
 		
 	}
@@ -47,19 +49,22 @@ public class Map_Generator : MonoBehaviour {
 		// BORDERS:
 		int borderSize = 1;
 		int [,] borderedMap = new int[width + borderSize * 2, height + borderSize * 2];
-		
+
 		for (int x = 0; x < borderedMap.GetLength(0); x++) {
 			for (int y = 0; y < borderedMap.GetLength(1); y++) {
 				
 				if (x>= borderSize && x < width + borderSize && y >= borderSize && y < height + borderSize){
 					borderedMap[x,y] = map [x - borderSize, y - borderSize];
+
 				}else{
 					borderedMap[x,y] = 1;
+
 				}
 			}
 		}
-		
-		
+
+
+
 		Mesh_Generator meshGen = GetComponent<Mesh_Generator> ();
 		meshGen.GenerateMesh (borderedMap, 1);
 
@@ -77,7 +82,7 @@ public class Map_Generator : MonoBehaviour {
 				if (map[x,y] == 0){
 					grid.tiles[x,y] = new TileData(TileData.Types.empty, 0, 1);
 				}else if (map[x,y] == 1){
-					grid.tiles[x,y] = new TileData(TileData.Types.water, 0, 10000);
+					grid.tiles[x,y] = new TileData(TileData.Types.water, 200, 10000);
 				}
 			}
 		}

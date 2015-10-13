@@ -23,7 +23,7 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 		
 		[Header("MAXIMUM 3 MEMBERS PER WAVE")]
 		public EnemyUnit[] members;
-		public int spawnPosIndex;
+
 		
 	}
 	
@@ -52,9 +52,8 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 	public SpawnState state = SpawnState.COUNTING;
 	
 	public ObjectPool objPool;
-	
-	[SerializeField]
-	private Vector3[] spawnPositions;
+
+	Vector3[] spawnPositions;
 	
 	Vector3 neighborEnemyPosition = Vector3.zero;
 	
@@ -82,11 +81,30 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 
 	private bool groupFinished = false;
 
+	private int randomIndexForSpwnPos;
+
 	// Use this for initialization
 	void Start () {
 
+		// Get the spawn positions from Spawn Point Handler
+		if (spwnPtHandler) {
+			InitializeSpawnPositions ();
+		} else {
+			spwnPtHandler = GetComponent<SpawnPoint_Handler>();
+			InitializeSpawnPositions();
+		}
+
+		
+	
+
 		if (objPool == null)
 			objPool = GameObject.FindGameObjectWithTag ("Pool").GetComponent<ObjectPool> ();
+
+		if (camShake == null)
+			camShake = GameObject.FindGameObjectWithTag ("GameController").GetComponent<CameraShake> ();
+
+		if (resourceGrid == null)
+			resourceGrid = GameObject.FindGameObjectWithTag ("Map").GetComponent<ResourceGrid> ();
 		
 		peaceCountDown = peaceTime;
 		waveCountDown = timeBetweenWaves;
@@ -105,7 +123,15 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 		
 		state = SpawnState.COUNTING;
 	}
-	
+
+	void InitializeSpawnPositions()
+	{
+		spawnPositions = new Vector3[spwnPtHandler.spawnPositions.Length];
+		
+		for (int i = 0; i < spawnPositions.Length; i ++) {
+			spawnPositions[i] = new Vector3(spwnPtHandler.spawnPositions[i].x, spwnPtHandler.spawnPositions[i].y, 0.0f);
+		}
+	}
 
 	void Update () 
 	{
@@ -187,9 +213,12 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 				
 				// add this indicator to our array so we can eliminate it when it's done
 				indicators[i] = spwnIndicator;
-				
+
+				// Get a random index for the spawn position
+				randomIndexForSpwnPos = Random.Range(0, spawnPositions.Length - 1);
+
 				// place it on the right location
-				spwnIndicator.transform.position = spawnPositions[thisWave.spawnPosIndex];
+				spwnIndicator.transform.position = spawnPositions[randomIndexForSpwnPos];
 				
 				// get the Spawn Indicator Component from it
 				Enemy_SpawnIndicator indicator = spwnIndicator.GetComponent<Enemy_SpawnIndicator>();
@@ -246,8 +275,11 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 		for (int x = 0; x < _wave.members.Length; x++) {
 			// each member has a name and a count, loop through this count too
 			for (int y = 0; y < _wave.members[x].enemyCount; y++){
+
+				// Use the same random index calculated from this Wave's spawn indicator
+
 				// spawn this enemy name
-				SpawnEnemy(_wave.members[x].enemyName, _wave.spawnPosIndex);
+				SpawnEnemy(_wave.members[x].enemyName, randomIndexForSpwnPos);
 				
 				yield return new WaitForSeconds (1f / _wave.members[x].spawnRate);
 			}

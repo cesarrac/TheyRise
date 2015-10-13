@@ -112,17 +112,19 @@ public class Player_ResourceManager : MonoBehaviour {
 
 		// TODO: Create a method that takes care of loading resources gathered from previous levels
 		//Initialize the Starting Resources for this level
-		InitStartingResources ();
+		InitStartingResources (startFood, startCredits, startOre);
 
 	}
 
-	void InitStartingResources()
+	public void InitStartingResources(int _food, int _credits, int _ore)
 	{
-		water = startWater;
-		food = startFood;
-		credits = startCredits;
-		ore = startOre;
+		// These 3 are filled by the GM
+		food = _food;
+		credits = _credits;
+		ore = _ore;
+
 		energy = startEnergy;
+		water = startWater;
 
 	}
 

@@ -80,6 +80,7 @@ public class Mesh_Generator : MonoBehaviour {
 			
 			for (int i = 0; i < outline.Count; i++){
 				edgepoints[i] = new Vector2(vertices[outline[i]].x,vertices[outline[i]].z) ;
+				/* This is a good spot to grab the x and z to get a position and an angle for the shore lines!!! */
 			}
 			edgeCollider.points = edgepoints;
 		}
