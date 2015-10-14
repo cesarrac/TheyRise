@@ -39,7 +39,7 @@ public class Tower_TargettingHandler : Unit_Base {
 
 	SpriteRenderer sr;
 
-	public enum State { SEEKING, ACQUIRE, SHOOTING, RELOADING, STARVED, MANUAL_CONTROL, MANUAL_SHOOTING}
+	public enum State { ASSEMBLING, SEEKING, ACQUIRE, SHOOTING, RELOADING, STARVED, MANUAL_CONTROL, MANUAL_SHOOTING}
 
 	private State _state = State.SEEKING;
 
@@ -57,10 +57,14 @@ public class Tower_TargettingHandler : Unit_Base {
 
 	private bool statusIndicated = false;
 
+	Building_ClickHandler build_click_handler;
+
 	void Start ()
 	{
 //		if (bStatusIndicator == null)
 //			Debug.Log ("GUN: Building Status Indicator NOT SET!");
+
+		build_click_handler = GetComponentInParent<Building_ClickHandler> ();
 
 		// Initialize Gun stats, starting ammo
 		gunStats.Init ();
@@ -164,9 +168,12 @@ public class Tower_TargettingHandler : Unit_Base {
 			lineR.sortingOrder = sr.sortingOrder + 1;
 		}
 
-//		Debug.DrawLine (sightStart.position, sightEnd.position, Color.magenta);
-
-		MyStateManager (_state);
+		// Wait for the Building to assemble, before allowing it to do anything
+		if (build_click_handler.state == Building_ClickHandler.State.READY) {
+			MyStateManager (_state);
+		} else {
+			MyStateManager(State.ASSEMBLING);
+		}
 
 		// Shooting under Manual Control
 		if (_state == State.MANUAL_CONTROL && _state != State.STARVED) {

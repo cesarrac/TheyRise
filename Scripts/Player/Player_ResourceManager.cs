@@ -222,7 +222,7 @@ public class Player_ResourceManager : MonoBehaviour {
 
 
 	
-
+		/*
 		// TODO: STOP THIS FROM CALLING WHEN WE HAVE ENOUGH POWER!!
 		// if the total Energy Cost exceeds the energy stored, Buildings will begin to power down
 		if (totalEnergyCost > energy) {
@@ -236,6 +236,7 @@ public class Player_ResourceManager : MonoBehaviour {
 
 		if (Input.GetKeyDown (KeyCode.T))
 			Debug.Log ("Energy cost: " + totalEnergyCost);
+		*/
 	}
 
 
