@@ -297,136 +297,145 @@ public class Player_ResourceManager : MonoBehaviour {
 			switch (buildingName) {						//** WARNING! ALL ATTACKING BUILDINGS HAVE THE COMPONENT IN CHILDREN!!!
 			case "Extractor":	// extractor
 				if (powerDown) {
-					
-					// Change the State to stop extraction
-					building.GetComponent<Extractor> ().state = Extractor.State.STARVED;
-					
-					//change building status image to RED
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
-					
-					//Create an INDICATOR for the user, warning them the building stopped working
-					buildingUI.CreateIndicator ("An " + buildingName + " stopped working.");
+					if (building != null && building.GetComponent<Extractor> ()){
+						// Change the State to stop extraction
+						building.GetComponent<Extractor> ().state = Extractor.State.STARVED;
+						
+						//change building status image to RED
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
+						
+						//Create an INDICATOR for the user, warning them the building stopped working
+						buildingUI.CreateIndicator ("An " + buildingName + " stopped working.");
 
-					//Subtract their energy cost from the total energy (The Power system is compensating by turning this building OFF)
-					totalEnergyCost = totalEnergyCost - buildingUI.extractCost[1];
-					
+						//Subtract their energy cost from the total energy (The Power system is compensating by turning this building OFF)
+						totalEnergyCost = totalEnergyCost - buildingUI.extractCost[1];
+					}
 				} else {
-					
-					// Change the state back to extraction
-					building.GetComponent<Extractor> ().state = Extractor.State.EXTRACTING;
-					
-					//change building status image to GREEN
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
-					
-					// Indicate to the Player that the building is back on
-					buildingUI.CreateIndicator (buildingName + " back online!");
+					if (building != null && building.GetComponent<Extractor> ()){
+						// Change the state back to extraction
+						building.GetComponent<Extractor> ().state = Extractor.State.EXTRACTING;
+						
+						//change building status image to GREEN
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
+						
+						// Indicate to the Player that the building is back on
+						buildingUI.CreateIndicator (buildingName + " back online!");
 
-					//Add their energy cost back to the total energy
-					totalEnergyCost = totalEnergyCost + buildingUI.extractCost[1];
+						//Add their energy cost back to the total energy
+						totalEnergyCost = totalEnergyCost + buildingUI.extractCost[1];
+					}
 				}
 				break;
 				
 			case "Machine Gun": // machine gun
 				if (powerDown) {
-					
-					building.GetComponentInChildren<Tower_TargettingHandler> ().state = Tower_TargettingHandler.State.STARVED;
-					
-					//change building status image to RED
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
-					
-					buildingUI.CreateIndicator ("A " + buildingName + " stopped working.");
+					if (building != null && building.GetComponentInChildren<Tower_TargettingHandler> ()){
+						building.GetComponentInChildren<Tower_TargettingHandler> ().state = Tower_TargettingHandler.State.STARVED;
+						
+						//change building status image to RED
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
+						
+						buildingUI.CreateIndicator ("A " + buildingName + " stopped working.");
 
-					//Subtract their energy cost from the total energy (The Power system is compensating by turning this building OFF)
-					totalEnergyCost = totalEnergyCost - buildingUI.mGunCost[1];
+						//Subtract their energy cost from the total energy (The Power system is compensating by turning this building OFF)
+						totalEnergyCost = totalEnergyCost - buildingUI.mGunCost[1];
+					}
 					
 				} else {
+					if (building != null && building.GetComponentInChildren<Tower_TargettingHandler> ()){
+						building.GetComponentInChildren<Tower_TargettingHandler> ().state = Tower_TargettingHandler.State.SEEKING;
 					
-					building.GetComponentInChildren<Tower_TargettingHandler> ().state = Tower_TargettingHandler.State.SEEKING;
-					
-					//change building status image to GREEN
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
-					
-					buildingUI.CreateIndicator (buildingName + " back online!");
+						//change building status image to GREEN
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
+						
+						buildingUI.CreateIndicator (buildingName + " back online!");
 
-					//Add their energy cost back to the total energy
-					totalEnergyCost = totalEnergyCost + buildingUI.mGunCost[1];
+						//Add their energy cost back to the total energy
+						totalEnergyCost = totalEnergyCost + buildingUI.mGunCost[1];
+					}
 
 				}
 				break;
 				
 			case "Cannons": // cannons
 				if (powerDown) {
-					
-					building.GetComponentInChildren<Tower_AoETargettingHandler> ().state = Tower_AoETargettingHandler.State.STARVED;
-					
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
-					
-					buildingUI.CreateIndicator (buildingName + " stopped working.");
+					if (building != null && 	building.GetComponentInChildren<Tower_AoETargettingHandler> ()){
+						building.GetComponentInChildren<Tower_AoETargettingHandler> ().state = Tower_AoETargettingHandler.State.STARVED;
+						
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
+						
+						buildingUI.CreateIndicator (buildingName + " stopped working.");
 
-					totalEnergyCost = totalEnergyCost - buildingUI.cannonCost[1];
+						totalEnergyCost = totalEnergyCost - buildingUI.cannonCost[1];
 
+					}
 					
 				} else {
-					building.GetComponentInChildren<Tower_AoETargettingHandler> ().state = Tower_AoETargettingHandler.State.SEEKING;
-					
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
-					
-					buildingUI.CreateIndicator (buildingName + " back online!");
+					if (building != null && building.GetComponentInChildren<Tower_AoETargettingHandler> ()){
+						building.GetComponentInChildren<Tower_AoETargettingHandler> ().state = Tower_AoETargettingHandler.State.SEEKING;
+						
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
+						
+						buildingUI.CreateIndicator (buildingName + " back online!");
 
-					totalEnergyCost = totalEnergyCost + buildingUI.cannonCost[1];
-
+						totalEnergyCost = totalEnergyCost + buildingUI.cannonCost[1];
+					}
 				}
 				break;
 				
 			case "Sniper Gun": 
 				if (powerDown) {
-					
-					building.GetComponentInChildren<Tower_TargettingHandler> ().state = Tower_TargettingHandler.State.STARVED;
-					
-					//change building status image to RED
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
-					
-					buildingUI.CreateIndicator ("A " + buildingName + " stopped working.");
 
-					totalEnergyCost = totalEnergyCost - buildingUI.sniperCost[1];
+					if (building != null && building.GetComponentInChildren<Tower_TargettingHandler> ()){
+						building.GetComponentInChildren<Tower_TargettingHandler> ().state = Tower_TargettingHandler.State.STARVED;
+						
+						//change building status image to RED
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
+						
+						buildingUI.CreateIndicator ("A " + buildingName + " stopped working.");
 
-					
+						totalEnergyCost = totalEnergyCost - buildingUI.sniperCost[1];
+
+					}
 				} else {
-					
-					building.GetComponentInChildren<Tower_TargettingHandler> ().state = Tower_TargettingHandler.State.SEEKING;
-					
-					//change building status image to GREEN
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
-					
-					buildingUI.CreateIndicator (buildingName + " back online!");
 
-					totalEnergyCost = totalEnergyCost + buildingUI.sniperCost[1];
+					if (building != null && building.GetComponentInChildren<Tower_TargettingHandler> ()){
+						building.GetComponentInChildren<Tower_TargettingHandler> ().state = Tower_TargettingHandler.State.SEEKING;
+						
+						//change building status image to GREEN
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
+						
+						buildingUI.CreateIndicator (buildingName + " back online!");
 
+						totalEnergyCost = totalEnergyCost + buildingUI.sniperCost[1];
+					}
 				}
 				break;
 				
 			case "Sea-Witch Crag": 
 				if (powerDown) {
-					
-					building.GetComponentInChildren<Tower_DeBuffer> ().state = Tower_DeBuffer.State.STARVED;
-					
-					//change building status image to RED
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
-					
-					buildingUI.CreateIndicator ("A " + buildingName + " stopped working.");
+					if (building != null && building.GetComponentInChildren<Tower_DeBuffer> ()){
+						building.GetComponentInChildren<Tower_DeBuffer> ().state = Tower_DeBuffer.State.STARVED;
+						
+						//change building status image to RED
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Starve");
+						
+						buildingUI.CreateIndicator ("A " + buildingName + " stopped working.");
 
-					totalEnergyCost = totalEnergyCost - buildingUI.seaWCost[1];
-					
+						totalEnergyCost = totalEnergyCost - buildingUI.seaWCost[1];
+					}
 				} else {
-					
-					building.GetComponentInChildren<Tower_DeBuffer> ().state = Tower_DeBuffer.State.SEEKING;
-					
-					//change building status image to GREEN
-					building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
-					
-					buildingUI.CreateIndicator (buildingName + " back online!");
 
-					totalEnergyCost = totalEnergyCost + buildingUI.seaWCost[1];
+					if (building != null && building.GetComponentInChildren<Tower_DeBuffer> ()){
+						building.GetComponentInChildren<Tower_DeBuffer> ().state = Tower_DeBuffer.State.SEEKING;
+						
+						//change building status image to GREEN
+						building.GetComponent<Building_ClickHandler> ().ChangeBuildingStatus ("Unstarve");
+						
+						buildingUI.CreateIndicator (buildingName + " back online!");
+
+						totalEnergyCost = totalEnergyCost + buildingUI.seaWCost[1];
+					}
 				}
 				break;
 				

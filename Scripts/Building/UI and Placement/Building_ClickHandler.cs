@@ -11,7 +11,7 @@ public class Building_ClickHandler : MonoBehaviour {
 
 	// UI Handler feeds this when this is a new building so it may Swap Tiles
 	[HideInInspector]
-	public TileData.Types tileType;
+	public TileData.Types tileType, myTileType;
 
 	// get the bounds of this collider to know where to place the options panel
 	BoxCollider2D myCollider;
@@ -35,7 +35,31 @@ public class Building_ClickHandler : MonoBehaviour {
 	// Storing the building's energy cost here to access it from other scripts
 	public int energyCost {  get; private set; }
 
+	private float disassemblyTime = 10f;
+	private bool isDissasembling = false, isFading = false;
+	SpriteRenderer s_renderer;
+
+	Color A = Color.white;
+	Color B = Color.clear;
+	public float colorChangeDuration = 2;
+	private float colorTime;
+
+
+	void OnEnable()
+	{
+		// Make sure to reset the color
+		s_renderer = GetComponent<SpriteRenderer> ();
+		if (s_renderer.color == B) {
+			s_renderer.color = A;
+		}
+		// reset timer variables
+		isDissasembling = false;
+		isFading = false;
+
+	}
+
 	void Start () {
+
 
 		if (buildingCanvas == null) {
 			Debug.Log("CLICK HANDLER: Building Canvas not set!");
@@ -59,6 +83,11 @@ public class Building_ClickHandler : MonoBehaviour {
 
 		myCollider = GetComponent<BoxCollider2D> ();
 		vertExtents = myCollider.bounds.extents.y;
+
+		// get my tiletype
+		myTileType = CheckTileType ((int)transform.position.x,(int) transform.position.y);
+
+
 	}
 
 	void OnMouseUpAsButton(){
@@ -66,6 +95,32 @@ public class Building_ClickHandler : MonoBehaviour {
 
 		if (!buildingUIhandler.currentlyBuilding)
 			ActivateBuildingUI ();
+	}
+
+	void Update()
+	{
+		if (myTileType != TileData.Types.capital) {
+			if (!isDissasembling){
+				Dissasemble ();
+			}else{
+				Debug.Log("Tower dissasembling!");
+			}
+		} 
+		if (isFading) {
+			s_renderer.color = Color.Lerp(A, B, colorTime);
+
+			if (colorTime < 1){ 
+				// increment colorTime it at the desired rate every update:
+				colorTime += Time.deltaTime/colorChangeDuration;
+			}
+
+			if (s_renderer.color == B){
+				isFading = false;
+				isDissasembling = false;
+				Sell ();
+			}
+
+		}
 	}
 
 	public void ActivateBuildingUI(){
@@ -89,6 +144,21 @@ public class Building_ClickHandler : MonoBehaviour {
 		if (resourceGrid != null) {
 			resourceGrid.SwapTileType(mapPosX, mapPosY, TileData.Types.empty);
 		}
+	}
+
+
+	void Dissasemble()
+	{
+		if (disassemblyTime <= 0) {
+			disassemblyTime = 10f;
+			isDissasembling = true;
+			isFading = true;
+
+		} else {
+
+			disassemblyTime -= Time.deltaTime;
+		}
+
 	}
 
 	TileData.Types CheckTileType(int x, int y){

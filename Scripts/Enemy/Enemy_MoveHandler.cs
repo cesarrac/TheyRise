@@ -431,12 +431,23 @@ public class Enemy_MoveHandler : MonoBehaviour {
 			break;
 
 		case State.FROZEN:
-			// If the Player freezes this unit it can't move for an ammount of time = to the frozenTime variable
+			/* If the Player freezes this unit it can't move for an ammount of time = to the frozenTime variable
+			 * If this Unit has a Buddy, if it's close than half a tile freeze it. 
+			 To freeze it, change its state to frozen and make its frozentime = 5 seconds*/
 			if (frozenTime <= 0){
 				// go back to moving
 				_state = State.MOVING;
 			}else{
 				frozenTime -= Time.deltaTime;
+				/* This makes the Freeze effect spread to this Unit's buddy
+				if (myBuddy){
+					if (Vector2.Distance(transform.position, new Vector2(myBuddy.transform.position.x, myBuddy.transform.position.y))
+					    <= 0.5f){
+						myBuddy.frozenTime = 5;
+						myBuddy.state = State.FROZEN;
+					}
+				}
+				*/
 			}
 			break;
 		default:

@@ -5,10 +5,13 @@ public class Player_FreezeGun : Player_GunBaseClass {
 
 	public float frozenTime = 2f; // time in seconds target units stay frozen when hit
 
+	// To find weapon when selecting available weapons
+	public int wpnIndex = 1;
+
 	void Awake () 
 	{
 		// Initialize gun stats
-		gunStats.Init ();
+		gunStats.Init (wpnIndex);
 
 
 	}
@@ -17,6 +20,8 @@ public class Player_FreezeGun : Player_GunBaseClass {
 	{
 		objPool = GetComponentInParent<Player_HeroAttackHandler> ().objPool;
 	}
+
+	// Check for a HIT and do EFFECT:
 
 	void Update()
 	{
@@ -28,7 +33,12 @@ public class Player_FreezeGun : Player_GunBaseClass {
 		CanFire ();
 	}
 
+	// Shoot with LEFT CLICK:
+
 	void FixedUpdate () {
+
+		FollowMouse ();
+
 		if (Input.GetMouseButtonDown (0)) {
 			if (canFire){
 				ShootRay();
@@ -38,7 +48,9 @@ public class Player_FreezeGun : Player_GunBaseClass {
 			}
 		}
 	}
-	
+
+	// The GUN EFFECT:
+
 	void FreezeEnemy()
 	{
 		if (target.GetComponent<Enemy_MoveHandler> ()) {
@@ -55,8 +67,6 @@ public class Player_FreezeGun : Player_GunBaseClass {
 			if (fx){
 				fx.transform.position = enemy.transform.position;
 			}
-
-			Debug.Log("PLAYER GUN: Froze an enemy for " + frozenTime + " seconds!");
 
 			// After freezing this enemy make target null so we stop calling this method
 			target = null;
