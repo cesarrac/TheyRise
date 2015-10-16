@@ -29,7 +29,10 @@ public class Player_UIHandler : MonoBehaviour {
 		if (resourceManager == null) {
 			resourceManager = GetComponent<Player_ResourceManager>();
 		}
-		GetResourcesText ();
+
+		// NOTE: Turning off the Panels for now
+//		GetResourcesText ();
+
 		foodCostText.color = Color.red;
 
 		// Get the player hero component

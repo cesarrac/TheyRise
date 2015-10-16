@@ -22,6 +22,7 @@ public class SpawnPoint_Handler : MonoBehaviour {
 
 	int map_width, map_height;
 
+	// Make the MIN Spawn X a 4th of the map's width
 	int minSpawnX, minSpawnY;
 
 	public int numberOfSpawnPositions = 5;
@@ -32,12 +33,12 @@ public class SpawnPoint_Handler : MonoBehaviour {
 			map_generator = GameObject.FindGameObjectWithTag ("Map").GetComponent<Map_Generator> ();
 			map_width = map_generator.width;
 			map_height = map_generator.height;
-			minSpawnX = map_width / 10;
+			minSpawnX = map_width / 4;
 			minSpawnY = map_height / 10;
 		} else {
 			map_width = map_generator.width;
 			map_height = map_generator.height;
-			minSpawnX = map_width / 10;
+			minSpawnX = map_width / 4;
 			minSpawnY = map_height / 10;
 
 		}
@@ -72,12 +73,12 @@ public class SpawnPoint_Handler : MonoBehaviour {
 
 	void InitializeAllSpawnPositions()
 	{
-		int calcTotalPositions = ((map_width + map_height) + 20) * 4;
+		int calcTotalPositions = ((map_width + map_height) + 20) *5;
 		possibleSpawnPositions = new Vector2[calcTotalPositions];
 		int index = 0;
 		// Bottom
 		for (int y = 1; y <= 2; y++) {
-			for (int x = minSpawnX; x < map_width - 10; x++) {
+			for (int x = minSpawnX; x < map_width - minSpawnX; x++) {
 				if (index == 0){
 					possibleSpawnPositions[0] = new Vector2(x, y);
 				}else{
@@ -88,7 +89,7 @@ public class SpawnPoint_Handler : MonoBehaviour {
 		}
 		//Top
 		for (int y = map_height - 2; y < map_height; y++) {
-			for (int x = minSpawnX; x < map_width - 10; x++) {
+			for (int x = minSpawnX; x < map_width - minSpawnX; x++) {
 
 				possibleSpawnPositions[index] = new Vector2(x, y);
 
@@ -96,7 +97,7 @@ public class SpawnPoint_Handler : MonoBehaviour {
 			}
 		}
 		// Left
-		for (int x = minSpawnX; x <= minSpawnX + 2; x++){
+		for (int x = minSpawnX; x <= minSpawnX + 4; x++){
 			for (int y = 4; y < map_height - 2; y++)  {
 				
 				possibleSpawnPositions[index] = new Vector2(x, y);
@@ -105,7 +106,7 @@ public class SpawnPoint_Handler : MonoBehaviour {
 			}
 		}
 		// Right
-		for (int x = map_width - minSpawnX; x <= map_width - (minSpawnX - 2); x++){
+		for (int x = map_width - (minSpawnX + 4); x <= map_width - minSpawnX; x++){
 			for (int y = 4; y < map_height - 2; y++)  {
 				
 				possibleSpawnPositions[index] = new Vector2(x, y);

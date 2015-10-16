@@ -160,8 +160,6 @@ public class Unit_Base : MonoBehaviour {
 	}
 
 	void TakeDamage(Unit_Base unit, float damage){
-		Debug.Log ("UNIT: hitting target for " + damage + " damage!");
-
 		unit.stats.curHP = unit.stats.curHP - damage;
 
 		// Indicate damage using Unit / Building's canvas
@@ -181,18 +179,28 @@ public class Unit_Base : MonoBehaviour {
 
 		}
 
-		// Check if Unit needs to Die
-//		if (unit.stats.curHP <= 0) {
-//
-//			Die (unit.gameObject);
-//
-//		} else {
-//
-//
-//		}
+	}
 
-		// pop up the damage
-//		unit.dmgPopUp.PopUpDamage (damage);
+	public void TakeDamage(float damage)
+	{
+		stats.curHP = stats.curHP - damage;
+		
+		// Indicate damage using Unit / Building's canvas
+		if (gameObject.activeSelf) {
+			
+			if (gameObject.tag == "Building") {
+				
+				// indicate damage on building
+				if (buildingStatusIndicator != null)
+					buildingStatusIndicator.SetHealth (stats.curHP, stats.maxHP, damage);
+				
+			} else {
+				// indicate damage on unit
+				if (statusIndicator != null)
+					statusIndicator.SetHealth (stats.curHP, stats.maxHP, damage);
+			}
+			
+		}
 	}
 
 	public void TakeDebuff(float debuffAmmnt, string statID){
