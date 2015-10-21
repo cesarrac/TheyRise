@@ -70,6 +70,9 @@ public class ResourceGrid : MonoBehaviour{
 	public int centerPosX = 0;
 	public int centerPosY = 0;
 
+	// Access to the Player Hero
+	public GameObject Hero;
+
 	void Start () 
 	{
 
@@ -547,9 +550,15 @@ public class ResourceGrid : MonoBehaviour{
 				playerResources.ChangeResource("Energy", -gen.energyUnitsGenerated);
 			}
 
+
+			/* NANO BOTS Test !!! 
 			// RETURN 30% OF THE ORE COST TO THE RESOURCES
 			float calc = (float)tiles[x,y].oreCost * 0.3f;
 			playerResources.ore = playerResources.ore + (int)calc;
+			*/
+			// Return bots... THIS WILL NEED TO EQUAL A NANOBOTS COST LATER, JUST USING 10
+			NanoBuilding_Handler nanoBuilder = Hero.GetComponent<NanoBuilding_Handler>();
+			nanoBuilder.nanoBots += 10;
 
 			// Pool the spawned tile
 //			Destroy(spawnedTiles[x,y].gameObject);

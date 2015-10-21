@@ -10,16 +10,19 @@ public class Player_GunBaseClass : MonoBehaviour {
 		public float curFireRate { get {return _fireRate;} set { _fireRate = Mathf.Clamp(value, 0.5f, 2f);}}
 		public float startingFireRate;
 
-		public void Init()
+		public int weaponIndex;
+
+		public void Init(int index)
 		{
 			curFireRate = startingFireRate;
+			weaponIndex = index;
 		}
 	}
 
 	public GunStats gunStats = new GunStats();
 
 
-	public Transform sightEnd; // where the gun's range ends
+	public Transform sightStart, sightEnd; // where the gun's range starts and ends
 	
 	public LayerMask mask;
 
@@ -32,7 +35,13 @@ public class Player_GunBaseClass : MonoBehaviour {
 	public ObjectPool objPool;
 
 
+	public void FollowMouse()
+	{
+		Vector3 targetMouse = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+		float z = Mathf.Atan2 ((targetMouse.y - sightStart.position.y), (targetMouse.x - sightStart.position.x)) * Mathf.Rad2Deg - 90;		
+		sightStart.rotation = Quaternion.AngleAxis (-z, Vector3.forward);
 
+	}
 
 	public void CanFire()
 	{
@@ -63,4 +72,6 @@ public class Player_GunBaseClass : MonoBehaviour {
 		}
 		
 	}
+
+
 }
