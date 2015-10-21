@@ -199,10 +199,12 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 			
 			// find the wave to get its info
 			Wave thisWave = waves[nextWave + i];
-			
+
+			// Get a random index for the spawn position
+			randomIndexForSpwnPos = Random.Range(0, spawnPositions.Length - 1);
 			
 			// get the indicator from pool
-			GameObject spwnIndicator = objPool.GetObjectForType("Spawn Indicator 2", true);
+			GameObject spwnIndicator = objPool.GetObjectForType("Spawn Indicator 2", true, spawnPositions[randomIndexForSpwnPos]);
 			
 			// store how many members there are in this wave
 			int memberCount = thisWave.members.Length;
@@ -214,12 +216,6 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 				// add this indicator to our array so we can eliminate it when it's done
 				indicators[i] = spwnIndicator;
 
-				// Get a random index for the spawn position
-				randomIndexForSpwnPos = Random.Range(0, spawnPositions.Length - 1);
-
-				// place it on the right location
-				spwnIndicator.transform.position = spawnPositions[randomIndexForSpwnPos];
-				
 				// get the Spawn Indicator Component from it
 				Enemy_SpawnIndicator indicator = spwnIndicator.GetComponent<Enemy_SpawnIndicator>();
 				
@@ -376,12 +372,9 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 	void SpawnEnemy(string _enemyName, int _spawnIndex)
 	{
 		// Spawn and fill components
-		GameObject _enemy = objPool.GetObjectForType (_enemyName, true);
+		GameObject _enemy = objPool.GetObjectForType (_enemyName, true, spawnPositions[_spawnIndex]);
 		
 		if (_enemy != null) {
-			
-			// Give it its starting position
-			_enemy.transform.position = spawnPositions[_spawnIndex];
 			
 			// Get the Attack Handler
 			Enemy_AttackHandler _attkHandler = _enemy.GetComponentInChildren<Enemy_AttackHandler>();
@@ -392,6 +385,7 @@ public class Enemy_WAVESpawnerV2 : MonoBehaviour {
 			// Pathfinding variables
 			_moveHandler.resourceGrid = resourceGrid;
 			_moveHandler.spwnPtIndex = _spawnIndex;
+			Debug.Log("ENEMY: " + _enemyName + " spawn index: " + _spawnIndex);
 			_moveHandler.spwnPtHandler = spwnPtHandler; 
 			
 			// Give it the Object Pool

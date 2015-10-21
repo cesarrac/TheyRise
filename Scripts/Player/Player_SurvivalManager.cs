@@ -53,9 +53,7 @@ public class Player_SurvivalManager : MonoBehaviour {
 		// Make sure this script has access to Player Attack Handler
 		if (!playerAttackHandler) {
 			playerAttackHandler = GetComponent<Player_HeroAttackHandler> ();
-		} else {
-			Debug.Log ("PLAYER SURVIVAL: Player's Attack Handler is NOT set!!");
-		}
+		} 
 
 		// Initialize the survival stats
 		survStats.Init();

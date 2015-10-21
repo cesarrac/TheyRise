@@ -5,14 +5,16 @@ public class Enemy_MoveHandler : MonoBehaviour {
 
 	[System.Serializable]
 	public class MovementStats {
-		public float startMoveSpeed;
+		public float startMoveSpeed, startChaseSpeed;
 
-		private float _moveSpeed;
+		private float _moveSpeed, _chaseSpeed;
 
 		public float curMoveSpeed{ get { return _moveSpeed; } set { _moveSpeed = Mathf.Clamp(value, 0, startMoveSpeed); } }
+		public float curChaseSpeed{ get { return _chaseSpeed; } set { _chaseSpeed = Mathf.Clamp(value, 0, startChaseSpeed); } }
 
 		public void InitMoveStats(){
 			curMoveSpeed = startMoveSpeed;
+			curChaseSpeed = startChaseSpeed;
 		}
 	}
 
@@ -39,8 +41,6 @@ public class Enemy_MoveHandler : MonoBehaviour {
 	public int spwnPtIndex;
 	public SpawnPoint_Handler spwnPtHandler;
 
-	public float formationOffset;
-
 	public float stoppingDistance;
 	CircleCollider2D collider;
 	public Vector3 destination;
@@ -56,11 +56,9 @@ public class Enemy_MoveHandler : MonoBehaviour {
 
 	private Vector2 _capitalPosition;
 
-	public bool isKamikaze;
-
 	public bool unitInitialized { get; private set;} 
 
-	public enum State { IDLING, MOVING, MOVING_BACK, DISPERSING, AVOIDING, ATTACKING, FROZEN };
+	public enum State { IDLING, MOVING, MOVING_BACK, DISPERSING, AVOIDING, ATTACKING, FROZEN, FOLLOW_PLAYER, ATTACKING_PLAYER };
 
 	private State _state = State.IDLING;
 
@@ -69,6 +67,8 @@ public class Enemy_MoveHandler : MonoBehaviour {
 
 	private Vector2 lastKnownNode, myLastPosition, disperseDirection = Vector2.zero, avoidDirection = Vector2.zero;
 
+	public bool isKamikaze;
+
 	[SerializeField]
 	private bool isAvoider; // if unit is an Avoider, they won't attack tiles, just go around them
 
@@ -76,9 +76,17 @@ public class Enemy_MoveHandler : MonoBehaviour {
 
 	[HideInInspector]
 	public float frozenTime;
-	
+
+	[HideInInspector]
+	public GameObject targetPlayer;
+	private bool followingPlayer;
+	public bool isPlayerAttacker;
+
+	Rigidbody2D rb;
+
 	void Start () 
 	{
+		rb = GetComponent<Rigidbody2D> ();
 
 		// Initialize Movement Speed stat
 		mStats.InitMoveStats ();
@@ -91,7 +99,7 @@ public class Enemy_MoveHandler : MonoBehaviour {
 		// Store initial position for Grid as an int
 		posX = (int)transform.position.x;
 		posY = (int)transform.position.y;
-
+		Debug.Log ("X=" + posX + "Y=" + posY);
 		// Store the Attack Handler to interact with its state
 		enemyAttkHandler = GetComponent<Enemy_AttackHandler> ();
 
@@ -358,6 +366,10 @@ public class Enemy_MoveHandler : MonoBehaviour {
 
 	void Update () {
 
+		if (isPlayerAttacker && targetPlayer != null && !followingPlayer) {
+			_state = State.FOLLOW_PLAYER;
+		}
+
 		DrawLine ();
 	
 		MyStateMachine (_state);
@@ -376,6 +388,8 @@ public class Enemy_MoveHandler : MonoBehaviour {
 //			// Buddy System links units of the same wave to allow them to attack a Tile or Unit in unison
 //			BuddySystem();
 //		}
+
+
 	}
 
 	void MyStateMachine(State _curState)
@@ -435,8 +449,14 @@ public class Enemy_MoveHandler : MonoBehaviour {
 			 * If this Unit has a Buddy, if it's close than half a tile freeze it. 
 			 To freeze it, change its state to frozen and make its frozentime = 5 seconds*/
 			if (frozenTime <= 0){
-				// go back to moving
-				_state = State.MOVING;
+
+				if (!followingPlayer){
+					// go back to moving
+					_state = State.MOVING;
+				}else{
+					// go back to following the player target
+					_state = State.FOLLOW_PLAYER;
+				}
 			}else{
 				frozenTime -= Time.deltaTime;
 				/* This makes the Freeze effect spread to this Unit's buddy
@@ -450,12 +470,37 @@ public class Enemy_MoveHandler : MonoBehaviour {
 				*/
 			}
 			break;
+		case State.FOLLOW_PLAYER:
+			// Stop moving on path, check if target Player is assigned and start following
+			if (!followingPlayer)
+				followingPlayer = true;
+			_state = State.ATTACKING_PLAYER;
+
+			break;
+		case State.ATTACKING_PLAYER:
+			// Continue to follow and attack on contact
+
+			FollowPlayer(targetPlayer);
+			Debug.Log("ENEMY_MOVE: Following Player!");
+			
+			break;
 		default:
 			_state = State.IDLING;
 			break;
 		}
 
 	}
+
+	void FollowPlayer(GameObject target)
+	{
+//		transform.position = Vector3.Lerp (transform.position, new Vector3 (target.position.x - 1, target.position.y, 0.0f), 
+//		                                   mStats.curMoveSpeed * Time.deltaTime);
+		transform.position = Vector2.MoveTowards (transform.position, target.transform.position, mStats.curChaseSpeed * Time.deltaTime);
+		// Moving using Rigidbody 2D
+//		Vector2 targetPos = new Vector2 (target.transform.position.x, target.transform.position.y);
+//		rb.MovePosition(rb.position + targetPos * mStats.curMoveSpeed * Time.deltaTime);
+	}
+
 
 	// DEBUG NOTE: Using this to draw line to show path. Only works in Preview mode
 	void DrawLine()
@@ -594,13 +639,17 @@ public class Enemy_MoveHandler : MonoBehaviour {
 	}
 
 	bool CheckForTileAttack(int x, int y){
-		if (resourceGrid.tiles [x, y].tileType != TileData.Types.empty && resourceGrid.tiles [x, y].tileType != TileData.Types.rock) {
+		if (resourceGrid.tiles [x, y].tileType != TileData.Types.empty && 
+		    resourceGrid.tiles [x, y].tileType != TileData.Types.rock && 
+		    resourceGrid.tiles [x, y].tileType != TileData.Types.mineral &&
+		    resourceGrid.tiles [x, y].tileType != TileData.Types.water) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
+	/*
 	/// <summary>
 	/// Checks if MY BUDDY has:
 	/// -Reached the destination OR
@@ -638,4 +687,5 @@ public class Enemy_MoveHandler : MonoBehaviour {
 			}
 		}
 	}
+	*/
 }

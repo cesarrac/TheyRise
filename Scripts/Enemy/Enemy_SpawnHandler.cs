@@ -71,7 +71,7 @@ public class Enemy_SpawnHandler : MonoBehaviour {
 	}
 
 	public void SpawnFromPool(Vector3 randomVar){
-		GameObject newEnemy = objPool.GetObjectForType (enemyName, true); // only gets it if pooled
+		GameObject newEnemy = objPool.GetObjectForType (enemyName, true, Vector3.zero); // only gets it if pooled
 		if (newEnemy != null) {
 			// reset the HP of this unit in case its being reused from pool
 			newEnemy.GetComponentInChildren<Enemy_AttackHandler>().stats.curHP = unitHP;

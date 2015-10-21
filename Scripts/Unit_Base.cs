@@ -160,7 +160,7 @@ public class Unit_Base : MonoBehaviour {
 	}
 
 	void TakeDamage(Unit_Base unit, float damage){
-		unit.stats.curHP = unit.stats.curHP - damage;
+		unit.stats.curHP -= damage;
 
 		// Indicate damage using Unit / Building's canvas
 		if (unit.gameObject.activeSelf) {
@@ -183,8 +183,8 @@ public class Unit_Base : MonoBehaviour {
 
 	public void TakeDamage(float damage)
 	{
-		stats.curHP = stats.curHP - damage;
-		
+		stats.curHP -= damage;
+		Debug.Log (this.gameObject.name + " has " + stats.curHP + "HP left");
 		// Indicate damage using Unit / Building's canvas
 		if (gameObject.activeSelf) {
 			

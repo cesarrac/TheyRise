@@ -256,25 +256,39 @@ public class Building_PositionHandler : MonoBehaviour {
 		int right2 = x + 2;
 
 		if (resourceGrid.tiles [x, top1].tileType == TileData.Types.empty && // top
-			resourceGrid.tiles [x, top2].tileType == TileData.Types.empty &&
 			resourceGrid.tiles [left1, top1].tileType == TileData.Types.empty && // top Left
-			resourceGrid.tiles [left2, top2].tileType == TileData.Types.empty &&
 			resourceGrid.tiles [right1, top1].tileType == TileData.Types.empty && // top Right
-			resourceGrid.tiles [right2, top2].tileType == TileData.Types.empty &&
 			resourceGrid.tiles [x, bottom1].tileType == TileData.Types.empty && // bottom
-			resourceGrid.tiles [x, bottom2].tileType == TileData.Types.empty &&
 			resourceGrid.tiles [left1, bottom1].tileType == TileData.Types.empty && // bottom left
-			resourceGrid.tiles [left2, bottom2].tileType == TileData.Types.empty &&
 			resourceGrid.tiles [right1, bottom1].tileType == TileData.Types.empty && // bottom right
-			resourceGrid.tiles [right2, bottom2].tileType == TileData.Types.empty &&
 			resourceGrid.tiles [left1, y].tileType == TileData.Types.empty && // left
-			resourceGrid.tiles [left2, y].tileType == TileData.Types.empty &&
-			resourceGrid.tiles [right1, y].tileType == TileData.Types.empty && // right
-			resourceGrid.tiles [right2, y].tileType == TileData.Types.empty) {
+			resourceGrid.tiles [right1, y].tileType == TileData.Types.empty) {  // right
 			return true;
 		} else {
 			return false;
 		}
+		/*
+		if (resourceGrid.tiles [x, top1].tileType == TileData.Types.empty && // top
+		    resourceGrid.tiles [x, top2].tileType == TileData.Types.empty &&
+		    resourceGrid.tiles [left1, top1].tileType == TileData.Types.empty && // top Left
+		    resourceGrid.tiles [left2, top2].tileType == TileData.Types.empty &&
+		    resourceGrid.tiles [right1, top1].tileType == TileData.Types.empty && // top Right
+		    resourceGrid.tiles [right2, top2].tileType == TileData.Types.empty &&
+		    resourceGrid.tiles [x, bottom1].tileType == TileData.Types.empty && // bottom
+		    resourceGrid.tiles [x, bottom2].tileType == TileData.Types.empty &&
+		    resourceGrid.tiles [left1, bottom1].tileType == TileData.Types.empty && // bottom left
+		    resourceGrid.tiles [left2, bottom2].tileType == TileData.Types.empty &&
+		    resourceGrid.tiles [right1, bottom1].tileType == TileData.Types.empty && // bottom right
+		    resourceGrid.tiles [right2, bottom2].tileType == TileData.Types.empty &&
+		    resourceGrid.tiles [left1, y].tileType == TileData.Types.empty && // left
+		    resourceGrid.tiles [left2, y].tileType == TileData.Types.empty &&
+		    resourceGrid.tiles [right1, y].tileType == TileData.Types.empty && // right
+		    resourceGrid.tiles [right2, y].tileType == TileData.Types.empty) {
+			return true;
+		} else {
+			return false;
+		}
+		*/
 	}
 
 	bool CheckEmptyBeneath(int x, int y){

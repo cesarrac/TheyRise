@@ -23,6 +23,8 @@ public class Terraformer_Handler : MonoBehaviour {
 
 	public Enemy_WAVESpawnerV2 waveSpawner; // control over the spawning of enemy waves
 
+	// Used to activate Mission Succes state, Mission Failed is handled when Resource Grid swaps the capital tile
+	public MasterState_Manager master_State;
 
 	void Awake()
 	{
@@ -32,6 +34,10 @@ public class Terraformer_Handler : MonoBehaviour {
 			waveSpawner = GameObject.FindGameObjectWithTag ("Spawner").GetComponent<Enemy_WAVESpawnerV2> ();
 			waveSpawner.terraformer = this;
 		}
+
+		if (!master_State)
+			master_State = GameObject.FindGameObjectWithTag ("GameController").GetComponent<MasterState_Manager> ();
+
 	}
 	
 	void Update () 
@@ -48,8 +54,8 @@ public class Terraformer_Handler : MonoBehaviour {
 			TerraformingCountdown();
 			break;
 		case State.DONE:
-			//Notify Game Master that this level was succesfully terraformed, load Victory
-			Debug.Log ("TERRAFORMER: Terraforming complete! Victory!!!");
+			//Notify Master State that this level was succesfully terraformed, Game Master will load ship level after UI screen pops up
+			master_State.mState = MasterState_Manager.MasterState.MISSION_SUCCESS;
 			break;
 		default:
 			// Terraformer is IDLING

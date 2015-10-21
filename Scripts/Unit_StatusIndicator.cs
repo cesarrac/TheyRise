@@ -62,7 +62,7 @@ public class Unit_StatusIndicator : MonoBehaviour {
 		Vector3 scale = new Vector3(0.6f, 1, 1);
 		Vector3 _scaleCalc = canvas.transform.localScale - scale;
 
-		_damageText = objPool.GetObjectForType ("Damage Text", true);
+		_damageText = objPool.GetObjectForType ("Damage Text", true, Vector3.zero);
 
 		if (_damageText != null) {
 

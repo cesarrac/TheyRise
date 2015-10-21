@@ -4,17 +4,15 @@ using System.Collections;
 public class Player_AssaultRifle : Player_GunBaseClass {
 
 	public float explosiveDamage = 2f; 
-	
-	// To find weapon when selecting available weapons
-	public int wpnIndex = 1;
 
-	
+
+
 	void Awake () 
 	{
 		// Initialize gun stats
-		gunStats.Init (wpnIndex);
+		gunStats.Init ();
 		
-		
+		rigid_body = GetComponentInParent<Rigidbody2D> ();
 	}
 	
 	void Start()
@@ -26,48 +24,36 @@ public class Player_AssaultRifle : Player_GunBaseClass {
 	
 	void Update()
 	{
-		if (target) {
-		
+		if (targetHit != null) {
 
 			// Do Gun Effect
 			DamageEnemy();
 
 		}
-		
-		CanFire ();
-	}
+//		
+//
+		CheckForShoot ();
+	
 
-	
-	// Shoot with LEFT CLICK:
-	
-	void FixedUpdate ()
-	{
 		FollowMouse ();
-
-
-		if (Input.GetMouseButtonDown (0)) {
-			if (canFire){
-				ShootRay();
-				// Reset countdown to fire
-				countDownToFire = 0;
-				canFire = false;
-			}
-		}
 	}
+
+	
+
 	
 	// The GUN EFFECT:
 	void DamageEnemy()
 	{
-		if (target.GetComponent<Unit_Base> ()) {
-			Unit_Base enemy = target.GetComponent<Unit_Base> ();
+		Debug.Log ("GOT AN ENEMY TO DAMAGE");
+		if (targetHit.GetComponent<Unit_Base> ()) {
+			Debug.Log("ENEMY UNIT BASE SCRIPT FOUND!");
+			Unit_Base enemy = targetHit.GetComponent<Unit_Base> ();
 
 			if (enemy.stats.curHP > 0){
 	
 				// instantiate a visual FX from the pool
-				GameObject fx = objPool.GetObjectForType("MachineGun_ShootFX", true);
-				if (fx){
-					fx.transform.position = enemy.transform.position;
-				}
+				GameObject fx = objPool.GetObjectForType("MachineGun_ShootFX", true, enemy.transform.position);
+
 
 				/* This guns explodes a chunk or part off of the enemy unit IF the unit only has a 4th of their HP left */
 
@@ -75,21 +61,25 @@ public class Player_AssaultRifle : Player_GunBaseClass {
 				float quarterHP = enemy.stats.maxHP * 0.25f;
 
 				if (enemy.stats.curHP <= quarterHP){
-					// Blow up a chunk
+					//TODO: Blow up a chunk instead of just normal damage
+					enemy.TakeDamage(explosiveDamage);
+
 				}else{
 					// just do damage
 					enemy.TakeDamage(explosiveDamage);
+					Debug.Log ("DAMAGING ENEMY!");
 				}
 
 
-				target = null;
+				targetHit = null;
 			}else{
-				target = null;
+				Debug.Log ("ENEMY SHOULD BE DEAD!");
+				targetHit = null;
 			}
 
 		} else {
 			// If it couldn't find the Enemy Move Handler component it's probably because the unit is already dead
-			target = null;
+			targetHit = null;
 
 		}
 	}

@@ -12,23 +12,36 @@ public class MasterState_Manager : MonoBehaviour {
 	/// - Pause CoRoutines in other scripts by changing Master State
 	/// </summary>
 
-	public enum MasterState { WAITING, LOADING, START, PAUSED, CONTINUE }
+	public enum MasterState { WAITING, LOADING, START, PAUSED, MISSION_FAILED, MISSION_SUCCESS, CONTINUE, QUIT }
 
 	private MasterState _mState = MasterState.WAITING;
 
 	[HideInInspector]
 	public MasterState mState { get { return _mState; } set { _mState = value; }}
 
+	GameMaster game_master;
 
-	void Start () 
+	public GameObject missionFailedPanel;
+
+	void Awake () 
 	{
-	
+		game_master = GameObject.FindGameObjectWithTag ("GM").GetComponent<GameMaster> ();
+
+		// If for some reason the mission failed panel is still active, deactivate it
+		if (missionFailedPanel) {
+			if (missionFailedPanel.activeSelf)
+				missionFailedPanel.SetActive(false);
+		}
 	}
 	
 
 	void Update ()
 	{
-	
+		// QUIT:
+		if (Input.GetKey ("escape"))
+			mState = MasterState.QUIT;
+
+		MasterStateMachine (mState);
 	}
 
 	void MasterStateMachine(MasterState _curState)
@@ -51,13 +64,35 @@ public class MasterState_Manager : MonoBehaviour {
 		case MasterState.CONTINUE:
 			// Level has been initialized, run Time as normal
 			break;
+		case MasterState.MISSION_FAILED:
+			// Pause game and tell GameMaster to load level or go back to ship level
+			MissionFailed();
+			break;
+		case MasterState.MISSION_SUCCESS:
+			break;
+		case MasterState.QUIT:
+			//TODO: Here we would begin the save progress function and then quit the application
+			Application.Quit();
+			break;
 		default:
 			_mState = MasterState.WAITING;
 			break;
 		}
 	}
 
-	public void TestPause()
+	void MissionFailed()
+	{
+		if (Time.timeScale != 0) {
+			Time.timeScale = 0;
+			Debug.Log("MasterState: Mission FAILED. Stopping game");
+		}
+		if (!missionFailedPanel.activeSelf) {
+			missionFailedPanel.SetActive(true);
+		}
+	}
+
+	// BUTTONS:
+	public void PauseButton()
 	{
 		_mState = MasterState.PAUSED;
 		Debug.Log ("Master State is: " + _mState.ToString() +" Pausing game! ");
@@ -69,5 +104,15 @@ public class MasterState_Manager : MonoBehaviour {
 		_mState = MasterState.CONTINUE;
 		Debug.Log ("Master State is: " + _mState.ToString() +" Continuing game! ");
 		Time.timeScale = 1;
+	}
+
+	public void RestartLevel()
+	{
+		game_master.MissionRestart ();
+	}
+
+	public void ReturnToShip()
+	{
+		game_master.GoBackToShip ();
 	}
 }

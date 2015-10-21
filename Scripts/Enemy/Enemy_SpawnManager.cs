@@ -110,7 +110,7 @@ public class Enemy_SpawnManager : MonoBehaviour {
 		//TOTAL OF 3 SPAWN POSITONS!
 		int randomPos = Random.Range (0, spawnPositions.Length);
 		if (count <= currEnemies.Length && currEnemies[count -1] != null) {
-			GameObject e = objPool.GetObjectForType(currEnemies[count -1].name, true);
+			GameObject e = objPool.GetObjectForType(currEnemies[count -1].name, true, Vector3.zero);
 			if (e != null){
 				e.transform.position = spawnPositions[randomPos];
 				Enemy_SpawnHandler spwnHandler = e.GetComponent<Enemy_SpawnHandler>();

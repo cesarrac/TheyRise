@@ -191,7 +191,7 @@ public class Enemy_WaveSpawner : MonoBehaviour {
 			
 
 			// get the indicator from pool
-			GameObject spwnIndicator = objPool.GetObjectForType("Spawn Indicator 2", true);
+			GameObject spwnIndicator = objPool.GetObjectForType("Spawn Indicator 2", true, spawnPositions[thisWave.spawnPosIndex]);
 
 			// store how many members there are in this wave
 			int memberCount = thisWave.members.Length;
@@ -202,9 +202,6 @@ public class Enemy_WaveSpawner : MonoBehaviour {
 
 				// add this indicator to our array so we can eliminate it when it's done
 				indicators[i] = spwnIndicator;
-
-				// place it on the right location
-				spwnIndicator.transform.position = spawnPositions[thisWave.spawnPosIndex];
 
 				// get the Spawn Indicator Component from it
 				Enemy_SpawnIndicator indicator = spwnIndicator.GetComponent<Enemy_SpawnIndicator>();
@@ -361,12 +358,10 @@ public class Enemy_WaveSpawner : MonoBehaviour {
 	void SpawnEnemy(string _enemyName, int _spawnIndex)
 	{
 		// Spawn and fill components
-		GameObject _enemy = objPool.GetObjectForType (_enemyName, true);
+		GameObject _enemy = objPool.GetObjectForType (_enemyName, true, spawnPositions[_spawnIndex]);
 
 		if (_enemy != null) {
 
-			// Give it its starting position
-			_enemy.transform.position = spawnPositions[_spawnIndex];
 
 			// Get the Attack Handler
 			Enemy_AttackHandler _attkHandler = _enemy.GetComponentInChildren<Enemy_AttackHandler>();

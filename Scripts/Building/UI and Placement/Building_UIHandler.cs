@@ -187,7 +187,7 @@ public class Building_UIHandler : MonoBehaviour {
 				// in order to re-use half tiles all we need is to
 				// grab the Half tile from the pool
 				// Add Building Position Handler and fill its vars
-				GameObject sExtractor = objPool.GetObjectForType(halfName, true);
+				GameObject sExtractor = objPool.GetObjectForType(halfName, true, spawnPos);
 				if (sExtractor != null){
 			
 					sExtractor.GetComponent<SpriteRenderer>().sprite = extractSprite;
@@ -211,7 +211,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Machine Gun":
 			if (resourceManager.ore >= mGunCost[0]){
-				GameObject mGun = objPool.GetObjectForType(halfName, true);
+				GameObject mGun = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(mGun != null){
 
 					// set the sprite
@@ -236,7 +236,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Cannons":
 			if (resourceManager.ore >= cannonCost[0]){		
-				GameObject can = objPool.GetObjectForType(halfName, true);
+				GameObject can = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(can != null){
 
 					// set the sprite
@@ -261,7 +261,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Harpooner's Hall":
 			if (resourceManager.ore >= hHallCost[0]){		// ** HAS FOOD COST
-				GameObject hHall = objPool.GetObjectForType(halfName, true);
+				GameObject hHall = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(hHall != null){
 
 					// set the sprite
@@ -286,7 +286,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Seaweed Farm":
 			if (resourceManager.ore >= sFarmCost[0]){		// ** HAS FOOD COST
-				GameObject sWeed = objPool.GetObjectForType(halfName, true);
+				GameObject sWeed = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(sWeed != null){
 
 					// set the sprite
@@ -311,7 +311,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Storage":
 			if (resourceManager.ore >= storageCost[0]){		
-				GameObject storage = objPool.GetObjectForType(halfName, true);
+				GameObject storage = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(storage != null){
 
 					// set the sprite
@@ -336,7 +336,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Desalination Pump":
 			if (resourceManager.ore >= sDesaltCost[0]){		
-				GameObject dSalt = objPool.GetObjectForType(halfName, true);
+				GameObject dSalt = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(dSalt != null){
 
 					// set the sprite
@@ -361,7 +361,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Sniper Gun":
 			if (resourceManager.ore >= sniperCost[0]){		
-				GameObject sniper = objPool.GetObjectForType(halfName, true);
+				GameObject sniper = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(sniper != null){
 
 					// set the sprite
@@ -386,7 +386,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Sea-Witch Crag":
 			if (resourceManager.ore >= seaWCost[0]){		
-				GameObject seaW = objPool.GetObjectForType(halfName, true);
+				GameObject seaW = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(seaW != null){
 					
 					// set the sprite
@@ -411,7 +411,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Nutrient Generator":
 			if (resourceManager.ore >= nutriCost[0]){
-				GameObject nutri = objPool.GetObjectForType(halfName, true);
+				GameObject nutri = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(nutri != null){
 					
 					// set the sprite
@@ -436,7 +436,7 @@ public class Building_UIHandler : MonoBehaviour {
 			break;
 		case "Energy Generator":
 			if (resourceManager.ore >= generatorCost[0]){	
-				GameObject gen = objPool.GetObjectForType(halfName, true);
+				GameObject gen = objPool.GetObjectForType(halfName, true, spawnPos);
 				if(gen != null){
 					
 					// set the sprite
@@ -690,8 +690,8 @@ public class Building_UIHandler : MonoBehaviour {
 		if (currIndicator != null) {
 			objPool.PoolObject(currIndicator);
 		}
-			currIndicator = objPool.GetObjectForType ("indicator", true);
-			currIndicator.transform.position = mainBuildPanel.transform.position;
+			currIndicator = objPool.GetObjectForType ("indicator", true, mainBuildPanel.transform.position);
+			
 			currIndicator.transform.SetParent (canvas.transform);
 			RectTransform rectTransform = currIndicator.GetComponent<RectTransform> ();
 			rectTransform.sizeDelta = new Vector2 (182f, 32f);

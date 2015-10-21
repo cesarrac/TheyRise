@@ -76,7 +76,7 @@ public class Kamikaze_AttackHandler : Unit_Base {
 
 
 		// Spawn an explosion at my position
-		GameObject explosion = objPool.GetObjectForType ("Explosion Particles", true);
+		GameObject explosion = objPool.GetObjectForType ("Explosion Particles", true, transform.position);
 
 		if (explosion != null) {
 			// Explosion must match my layer
@@ -85,7 +85,6 @@ public class Kamikaze_AttackHandler : Unit_Base {
 			// assign it to Particle Renderer
 			explosion.GetComponent<ParticleSystemRenderer>().sortingLayerName = targetLayer;
 
-			explosion.transform.position = transform.position;
 		}
 	}
 
@@ -94,10 +93,9 @@ public class Kamikaze_AttackHandler : Unit_Base {
 //		objPool.PoolObject(unitToPool);
 		Destroy (unitToPool.GetComponent<Player_AttackHandler>().unitParent);
 		// Get dead sprite
-		GameObject deadE = objPool.GetObjectForType("dead", false);
+		GameObject deadE = objPool.GetObjectForType("dead", false, deathPos);
 		if (deadE != null) {
 			deadE.GetComponent<EasyPool> ().objPool = objPool;
-			deadE.transform.position = deathPos;
 		}
 
 		this.unitToPool = null;

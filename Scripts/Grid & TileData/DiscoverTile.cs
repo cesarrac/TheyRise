@@ -19,6 +19,8 @@ public class DiscoverTile : MonoBehaviour {
 
 	public ObjectPool objPool;
 
+	public MasterState_Manager master_state;
+
 	void Start () {
 		fading = true;
 		sr = GetComponent<SpriteRenderer>();
@@ -61,7 +63,7 @@ public class DiscoverTile : MonoBehaviour {
 	}
 
 	public void TileToDiscover(string newTileName, int mapPosX, int mapPosY, Transform tileHolder, ResourceGrid grid,  TileData.Types tileType, GameObject playerCapital){		// this is called by Resource grid with the proper tile obj
-		tileToSpawn = objPool.GetObjectForType (newTileName, false);
+		tileToSpawn = objPool.GetObjectForType (newTileName, false, Vector3.zero);
 		if (tileToSpawn != null) {
 			tileToSpawn.transform.position = transform.position;
 			tileToSpawn.transform.parent = tileHolder;
@@ -90,6 +92,11 @@ public class DiscoverTile : MonoBehaviour {
 				extra.resourceGrid = grid;
 				extra.playerResources = playerCapital.GetComponent<Player_ResourceManager> ();
 			} 
+			if (tileType == TileData.Types.capital){
+				// IF IT'S THE TERRAFORMER it will need the master state manager
+				Terraformer_Handler terra = tileToSpawn.GetComponent<Terraformer_Handler>();
+				terra.master_State = master_state;
+			}
 
 	
 

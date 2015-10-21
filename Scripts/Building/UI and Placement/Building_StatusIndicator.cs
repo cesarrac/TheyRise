@@ -67,7 +67,7 @@ public class Building_StatusIndicator : MonoBehaviour {
 		Vector3 scale = new Vector3(1, 1, 1);
 		Vector3 _scaleCalc = canvas.transform.localScale - scale;
 		
-		_damageText = objPool.GetObjectForType ("Building Damage Text", true);
+		_damageText = objPool.GetObjectForType ("Building Damage Text", true, Vector3.zero);
 		
 		if (_damageText != null) {
 
@@ -101,7 +101,7 @@ public class Building_StatusIndicator : MonoBehaviour {
 		Vector3 scale = new Vector3(1, 1, 1);
 		Vector3 _scaleCalc = canvas.transform.localScale - scale;
 		
-		_statusMsgText = objPool.GetObjectForType ("Status Text", true);
+		_statusMsgText = objPool.GetObjectForType ("Status Text", true, Vector3.zero);
 		
 		if (_statusMsgText != null) {
 			

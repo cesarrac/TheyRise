@@ -73,6 +73,17 @@ public class ResourceGrid : MonoBehaviour{
 	// Access to the Player Hero
 	public GameObject Hero;
 
+	// Access to Master State manager to call when Terraformer is blown up
+	public MasterState_Manager master_state;
+
+	public int totalTilesThatAreWater;
+
+	void Awake()
+	{
+		if (!master_state)
+			master_state = GameObject.FindGameObjectWithTag ("GameController").GetComponent<MasterState_Manager> ();
+	}
+
 	void Start () 
 	{
 
@@ -109,7 +120,7 @@ public class ResourceGrid : MonoBehaviour{
 					tiletypeText.text = "Type: " + tiles[mX, mY].tileType;
 				}
 			}
-//			Debug.Log("Tile is of type: " + tiles[mX, mY].tileType);
+			print ("map coord:" + TileCoordToWorldCoord(mX, mY).ToString() + "world coord: " + m);
 		}
 	}
 
@@ -396,11 +407,20 @@ public class ResourceGrid : MonoBehaviour{
 		// make sure there IS a tile there
 		if (spawnedTiles [x, y] != null) {
 
-			tiles [x, y].hp = tiles [x, y].hp - damage;
-
 			// If it has 0 or less HP left, kill tile
 			if (tiles [x, y].hp <= 0) {
-				SwapTileType (x, y, TileData.Types.empty);	// to KILL TILE I just swap it ;)
+				if (tiles[x,y].tileType == TileData.Types.capital){
+					// call mission failed
+					master_state.mState = MasterState_Manager.MasterState.MISSION_FAILED;
+		
+				}else{
+					SwapTileType (x, y, TileData.Types.empty);	// to KILL TILE I just swap it ;)
+
+				}
+			}else{
+				tiles [x, y].hp = tiles [x, y].hp - damage;
+				Debug.Log("Tile: " + tiles[x,y].tileType.ToString() + " damaged for " + damage);
+				Debug.Log("It has " + tiles [x, y].hp + " left!");
 			}
 
 		} else {
@@ -498,6 +518,7 @@ public class ResourceGrid : MonoBehaviour{
 			}
 
 		} else { 
+
 			// if we are swapping an already spawned tile we are MOST LIKELY turning it into an empty tile
 			// BUT if this was a building that has an ENERGY cost that must be reflected in Player resources 
 			//	by subtracting from the total ENERGY cost
@@ -597,11 +618,12 @@ public class ResourceGrid : MonoBehaviour{
 
    void SpawnDiscoverTile(string tileName,Vector3 position, TileData.Types type){
 		// spawn the half tile from the pool
-		GameObject discoverTile = objPool.GetObjectForType ("Half_Tile", false);
+		GameObject discoverTile = objPool.GetObjectForType ("Half_Tile", false, Vector3.zero);
 		if (discoverTile != null) {
 			discoverTile.transform.position = position;
 			DiscoverTile dTile = discoverTile.GetComponent<DiscoverTile> ();
 			dTile.objPool = objPool;
+			dTile.master_state = master_state;
 			dTile.TileToDiscover(newTileName: tileName, mapPosX: (int) position.x , mapPosY: (int)position.y, tileHolder: tileHolder, grid: this,  tileType: type, playerCapital: playerCapital);
 		}
 
@@ -677,7 +699,9 @@ public class ResourceGrid : MonoBehaviour{
 	}
 	//TODO: Properly check for the tile map coords against world coords, right now this only works b/c map is set to 0,0 in world space
 	public Vector2 TileCoordToWorldCoord(int x, int y){
+
 		return new Vector2 ((float)x, (float)y);
+
 	}
 
 	/// <summary>
@@ -693,7 +717,7 @@ public class ResourceGrid : MonoBehaviour{
 		float moveCost = (float)tiles[targetX,targetY].movementCost;
 		if (sourceX != targetX && sourceY != targetY) {
 			// MOVING Diagonal! change cost so it's more expensive
-//			moveCost += 0.001f;
+			moveCost += 0.001f;
 		}
 		return moveCost;
 		// If there is no difference in cost between straight and diagonal, it moves weird

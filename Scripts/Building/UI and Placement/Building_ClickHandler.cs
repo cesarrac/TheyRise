@@ -242,9 +242,8 @@ public class Building_ClickHandler : MonoBehaviour {
 	void CreateNanoBot()
 	{
 		// TODO: Change the hardcoded value of nanobots to the building nanobot cost
-		GameObject nanobot = objPool.GetObjectForType("NanoBot", true);
+		GameObject nanobot = objPool.GetObjectForType("NanoBot", true, transform.position);
 		if (nanobot){
-			nanobot.transform.position = transform.position;
 			nanobot.GetComponent<NanoBot_MoveHandler>().player = resourceGrid.Hero.transform;
 			nanobot.GetComponent<NanoBot_MoveHandler>().objPool = objPool;
 		}

@@ -26,16 +26,24 @@ public class Enemy_AttackHandler : Unit_Base {
 	[HideInInspector]
 	public State state { get { return _state; } set { _state = value; } }
 
+	public State debugState;
+
+
 	private float attackCountDown;
 
 	[Header ("Camera Shake Ammount:")]
 	public float canShakeAmmount;
 	public CameraShake _camShake;
 
+	private bool isPlayerAttacker;
+
 	void Start () {
 
 		// Get the value of isKamikaze set by the public bool in Move Handler
 		isKamikaze = moveHandler.isKamikaze;
+
+		// Get isPlayerAttacker from move Handler as well
+		isPlayerAttacker = moveHandler.isPlayerAttacker;
 
 		// Initialize Unit stats
 		stats.Init ();
@@ -65,6 +73,8 @@ public class Enemy_AttackHandler : Unit_Base {
 			Suicide ();
 
 		MyStateMachine (_state);
+
+		debugState = state;
 	}
 
 	void MyStateMachine (State _curState)
@@ -165,10 +175,10 @@ public class Enemy_AttackHandler : Unit_Base {
 	void Suicide()
 	{
 		// get a Dead sprite to mark my death spot
-		GameObject deadE = objPool.GetObjectForType("dead", false); // Get the dead unit object
+		GameObject deadE = objPool.GetObjectForType("dead", false, transform.position); // Get the dead unit object
+
 		if (deadE != null) {
 			deadE.GetComponent<EasyPool> ().objPool = objPool;
-			deadE.transform.position = transform.position;
 		}
 
 		// make sure we Pool any Damage Text that might be on this gameObject
@@ -222,7 +232,7 @@ public class Enemy_AttackHandler : Unit_Base {
 		resourceGrid.DamageTile (x, y, stats.curSPdamage);
 
 		// Spawn an explosion at my position
-		GameObject explosion = objPool.GetObjectForType ("Explosion Particles", true);
+		GameObject explosion = objPool.GetObjectForType ("Explosion Particles", true, transform.position);
 
 		if (explosion != null) {
 			// Explosion must match my layer
@@ -231,8 +241,6 @@ public class Enemy_AttackHandler : Unit_Base {
 			// assign it to Particle Renderer
 			explosion.GetComponent<ParticleSystemRenderer>().sortingLayerName = targetLayer;
 
-			// Place explosion on this unit's death position
-			explosion.transform.position = transform.position;
 
 			// SHAKE THE CAMERA!!
 			if (_camShake){
@@ -269,7 +277,7 @@ public class Enemy_AttackHandler : Unit_Base {
 		}
 	
 		// Spawn an explosion at my position
-		GameObject explosion = objPool.GetObjectForType ("Explosion Particles", true);
+		GameObject explosion = objPool.GetObjectForType ("Explosion Particles", true, transform.position);
 		
 		if (explosion != null) {
 			// Explosion must match my layer
@@ -277,8 +285,7 @@ public class Enemy_AttackHandler : Unit_Base {
 			
 			// assign it to Particle Renderer
 			explosion.GetComponent<ParticleSystemRenderer>().sortingLayerName = targetLayer;
-			
-			explosion.transform.position = transform.position;
+
 		}
 	}
 
@@ -298,6 +305,10 @@ public class Enemy_AttackHandler : Unit_Base {
 					Debug.Log ("ENEMY ATTACK: Could not find Player unit's attack handler!");
 				}
 			}
+		} else if (isPlayerAttacker){
+			if (coll.gameObject.tag == "Citizen") {
+				moveHandler.targetPlayer = coll.gameObject;
+			}
 		}
 	}
 
@@ -309,6 +320,7 @@ public class Enemy_AttackHandler : Unit_Base {
 //				AttackOtherUnit(coll.gameObject.GetComponent<Player_HeroAttackHandler>());
 				if (playerUnit == null){
 					playerUnit = coll.gameObject;
+					moveHandler.targetPlayer = playerUnit;
 					_state = State.ATTACK_UNIT;
 				}
 			}
@@ -323,6 +335,8 @@ public class Enemy_AttackHandler : Unit_Base {
 				//				AttackOtherUnit(coll.gameObject.GetComponent<Player_HeroAttackHandler>());
 				if (playerUnit != null){
 					playerUnit = null;
+					// move handler doesn't make this null so it can continue to follow player
+
 					_state = State.MOVING;
 				}
 			}

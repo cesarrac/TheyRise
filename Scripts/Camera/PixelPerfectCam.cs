@@ -35,8 +35,13 @@ public class PixelPerfectCam : MonoBehaviour {
 	float vertExtent, horzExtent, leftBound, rightBound, bottomBound, topBound;
 	public float mapX, mapY;
 
-//	[HideInInspector]
-//	public bool shaking = false;
+	// Map boundaries
+	float left = 20, bottom = 10, right = 40, top = 36;
+
+	// Camera zoom
+	private bool _zoomedIn;
+	private float _startOrthoSize, _zoomOrthoSize = 8.15f;
+	public float curOrthoSize;
 	
 	protected void Start(){
 
@@ -48,6 +53,7 @@ public class PixelPerfectCam : MonoBehaviour {
 		}else{
 			_camera.orthographic = true;
 			ResizeCamToTargetSize();
+		
 		}
 
 		if (!_cameraHolder) {
@@ -75,6 +81,10 @@ public class PixelPerfectCam : MonoBehaviour {
 			_camera.orthographicSize = camSize;
 			_pixelLockedPPU = floored * pixelsPerUnit;
 
+			// store size for zoom
+			_startOrthoSize = _camera.orthographicSize;
+			curOrthoSize = _startOrthoSize;
+
 
 			vertExtent = camSize;  
 			
@@ -96,11 +106,26 @@ public class PixelPerfectCam : MonoBehaviour {
 		if(_winSize.x != Screen.width || _winSize.y != Screen.height){
 			ResizeCamToTargetSize();
 		}
-		if(_cameraHolder && followTarget){
-			Vector2 newPosition = new Vector2(followTarget.transform.position.x, followTarget.transform.position.y);
-			float nextX = Mathf.Round(_pixelLockedPPU * newPosition.x);
-			float nextY = Mathf.Round(_pixelLockedPPU * newPosition.y);
-			_cameraHolder.transform.position = new Vector3(nextX/_pixelLockedPPU, nextY/_pixelLockedPPU, _cameraHolder.transform.position.z);
+		if (_cameraHolder && followTarget) {
+			Vector3 newPosition = new Vector3 (followTarget.transform.position.x, followTarget.transform.position.y, 0.0F);
+			float nextX = Mathf.Round (_pixelLockedPPU * newPosition.x);
+			float nextY = Mathf.Round (_pixelLockedPPU * newPosition.y);
+
+		
+
+			// Check that if next move position is one of the map boundaries
+			if (newPosition.x < left || newPosition.x > right || newPosition.y >top  || newPosition.y < bottom) {
+				//Dont move
+			} else {
+//				_cameraHolder.transform.position = new Vector3 (nextX / _pixelLockedPPU, nextY / _pixelLockedPPU, _cameraHolder.transform.position.z);
+
+				Vector3 pixelPerfectPosition = new Vector3(nextX / _pixelLockedPPU, nextY / _pixelLockedPPU, _cameraHolder.transform.position.z);
+				Vector3 point = _camera.WorldToViewportPoint(pixelPerfectPosition);
+				Vector3 delta = pixelPerfectPosition - _camera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, point.z)); 
+				Vector3 destination = _cameraHolder.position + delta;
+				transform.position = Vector3.SmoothDamp(transform.position, destination, ref velocity, dampTime);
+
+			}
 		}
 
 //		float inputX = Input.GetAxis ("Horizontal");

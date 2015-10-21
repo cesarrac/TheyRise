@@ -14,23 +14,54 @@ public class Bullet_FastMoveHandler : MonoBehaviour {
 	public float timeToDie;
 	float startTime;
 
+	public Player_GunBaseClass myWeapon;
+
 	void Awake () {
 		startTime = Time.time;
 
 		rb = GetComponent<Rigidbody2D> ();
+
+		if (!objPool)
+			objPool = GameObject.FindGameObjectWithTag ("Pool").GetComponent<ObjectPool> ();
+
+
+	}
+
+	void Start(){
+
+	}
+
+	void OnEnable()
+	{
+		startTime = Time.time;
+
 	}
 	void Update(){
-		if (Time.time - startTime > timeToDie)
-			objPool.PoolObject(gameObject);
+
+		if (Time.time - startTime > timeToDie) {
+			objPool.PoolObject (gameObject);
+		} else {
+			transform.position += transform.up * bulletSpeed * Time.deltaTime;
+
+		}
 	}
-	
-	void FixedUpdate(){
-		if (rb != null)
-			rb.AddForce (transform.forward * bulletSpeed);
+
+	void LateUpdate()
+	{
+		// turn on sprite
+//		sprite_renderer.color = Color.white;
+
 	}
+
 	void OnTriggerEnter2D(Collider2D coll){
 		if (coll.gameObject.CompareTag("Enemy")) {
+
+			// Give target to weapon so it can apply damage
+			myWeapon.targetHit = coll.gameObject;
+
 			objPool.PoolObject(gameObject);
+
+
 		}
 	}
 }

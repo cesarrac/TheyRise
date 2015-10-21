@@ -8,7 +8,7 @@ public class SpawnPoint_Handler : MonoBehaviour {
 	[HideInInspector]
 	public Vector2[] spawnPositions;
 	[HideInInspector]
-	public Vector2[] possibleSpawnPositions;
+	public List<Vector2> possiblePositions = new List<Vector2> ();
 
 	public List<Node>[] kamikazePaths;
 	public List<Node>[] paths;
@@ -22,8 +22,8 @@ public class SpawnPoint_Handler : MonoBehaviour {
 
 	int map_width, map_height;
 
-	// Make the MIN Spawn X a 4th of the map's width
-	int minSpawnX, minSpawnY;
+	// Make the MIN Spawn X a 4th of the map's width and Spawn Y a 6th of the map's height
+	int minSpawnX, minSpawnY, maxSpawnX, maxSpawnY;
 
 	public int numberOfSpawnPositions = 5;
 
@@ -34,20 +34,25 @@ public class SpawnPoint_Handler : MonoBehaviour {
 			map_width = map_generator.width;
 			map_height = map_generator.height;
 			minSpawnX = map_width / 4;
-			minSpawnY = map_height / 10;
+			minSpawnY = map_height / 6;
+			maxSpawnX = map_width - (map_width / 4);
+			maxSpawnY = map_height - (map_height / 6);
 		} else {
 			map_width = map_generator.width;
 			map_height = map_generator.height;
 			minSpawnX = map_width / 4;
-			minSpawnY = map_height / 10;
-
+			minSpawnY = map_height / 6;
+			maxSpawnX = map_width - (map_width / 4);
+			maxSpawnY = map_height - (map_height / 6);
 		}
 
-		InitializeAllSpawnPositions ();
+//		Debug.Log ("MinX = " + minSpawnX + " MaxX =" + maxSpawnX + " MinY=" + minSpawnY + " MaxY=" + maxSpawnY);
 
 		
 		if (resourceGrid == null)
 			resourceGrid = GameObject.FindGameObjectWithTag ("Map").GetComponent<ResourceGrid> ();
+
+
 
 		// Store the paths (List<Node>) in a queue 
 //
@@ -60,65 +65,47 @@ public class SpawnPoint_Handler : MonoBehaviour {
 //			kamikazePathQueue.Enqueue(path);
 //		}
 		
-		// Create some random Kamikaze positions
-		GetRandomKamikazeDestinations ();
-
 	
-
 	}
+
+
 
 	/* Make this A LOT simpler by just getting the map width and height and assuming that it will always have at least
 	 *  a 2 Pixel border. So we have to get all the x positions at y = 2 and y = mapHeight - 2, then all the y positions
 	 * at x = 2 and x = mapWidth - 2 */
 
-	void InitializeAllSpawnPositions()
+	void InitializeAllSpawnPositions(int waterTilesCount)
 	{
-		int calcTotalPositions = ((map_width + map_height) + 20) *5;
-		possibleSpawnPositions = new Vector2[calcTotalPositions];
-		int index = 0;
+
 		// Bottom
-		for (int y = 1; y <= 2; y++) {
-			for (int x = minSpawnX; x < map_width - minSpawnX; x++) {
-				if (index == 0){
-					possibleSpawnPositions[0] = new Vector2(x, y);
-				}else{
-					possibleSpawnPositions[index] = new Vector2(x, y);
-				}
-				index++;
+		for (int y = minSpawnY; y <= minSpawnY + 4; y++) {
+			for (int x = minSpawnX; x < maxSpawnX; x++) {
+
+				possiblePositions.Add(new Vector2(x,y)); 
 			}
 		}
 		//Top
-		for (int y = map_height - 2; y < map_height; y++) {
-			for (int x = minSpawnX; x < map_width - minSpawnX; x++) {
+		for (int y = maxSpawnY - 4; y <= maxSpawnY; y++) {
+			for (int x = minSpawnX; x < maxSpawnX; x++) {
 
-				possibleSpawnPositions[index] = new Vector2(x, y);
+				possiblePositions.Add(new Vector2(x,y));
 
-				index++;
 			}
 		}
-		// Left
-		for (int x = minSpawnX; x <= minSpawnX + 4; x++){
-			for (int y = 4; y < map_height - 2; y++)  {
-				
-				possibleSpawnPositions[index] = new Vector2(x, y);
-				
-				index++;
+		// Left ( more like top left)
+		for (int x = minSpawnX - 1; x <= minSpawnX; x++){
+			for (int y = maxSpawnY - minSpawnY; y <= maxSpawnY; y++)  {
+
+				possiblePositions.Add(new Vector2(x,y));
+
 			}
 		}
 		// Right
-		for (int x = map_width - (minSpawnX + 4); x <= map_width - minSpawnX; x++){
-			for (int y = 4; y < map_height - 2; y++)  {
-				
-				possibleSpawnPositions[index] = new Vector2(x, y);
-				
-				index++;
-			}
-		}
+		for (int x = maxSpawnX -1; x <= maxSpawnX; x++){
+			for (int y = maxSpawnY - minSpawnY; y <= maxSpawnY; y++)  {
 
-		//Clean up the Array, turn all Vector2.zero into a sure position like (5,2)
-		for (int i = 0; i < possibleSpawnPositions.Length; i++) {
-			if (possibleSpawnPositions[i] == Vector2.zero){
-				possibleSpawnPositions[i] = new Vector2(5, 2);
+				possiblePositions.Add(new Vector2(x,y));
+
 			}
 		}
 
@@ -131,16 +118,19 @@ public class SpawnPoint_Handler : MonoBehaviour {
 		spawnPositions = new Vector2[numberOfSpawnPositions];
 		for (int i = 0; i < spawnPositions.Length; i++) {
 			spawnPositions[i] = GetRandomSpawnPositions();
-			Debug.Log(spawnPositions[i]);
+//			Debug.Log("SPAWN POS: " + spawnPositions[i] + " index:" + i);
 		}
 	}
 	Vector2 GetRandomSpawnPositions()
 	{
 		Vector2 returnVector = Vector2.zero;
-		int randomPositionPick = Random.Range (2, possibleSpawnPositions.Length - 1);
+//		int randomPositionPick = Random.Range (0, possibleSpawnPositions.Length / 2);
+		int randomPositionPick = Random.Range (0, possiblePositions.Count - 1);
 
-		return new Vector2 (possibleSpawnPositions [randomPositionPick].x, possibleSpawnPositions [randomPositionPick].y);
-		
+
+//		return new Vector2 (possibleSpawnPositions [randomPositionPick].x, possibleSpawnPositions [randomPositionPick].y);
+		return new Vector2 (possiblePositions [randomPositionPick].x, possiblePositions [randomPositionPick].y);
+
 
 	}
 	void GetRandomKamikazeDestinations()
@@ -148,14 +138,17 @@ public class SpawnPoint_Handler : MonoBehaviour {
 		kamikazeDestinations = new Vector2[numberOfSpawnPositions];
 		// Loop through the Kamikaze Destinations array and fill each with a random X and Y
 		for (int x = 0; x < kamikazeDestinations.Length; x++) {
-			int randomKamikazeX = Random.Range(minSpawnX, map_width - minSpawnX);
-			int randomKamikazeY = Random.Range(minSpawnY, map_height - minSpawnY);
+			int randomKamikazeX = Random.Range(minSpawnX + 5, maxSpawnX - 5);
+			int randomKamikazeY = Random.Range(minSpawnY + 5, maxSpawnY - 5);
 			kamikazeDestinations[x] = new Vector2(randomKamikazeX, randomKamikazeY);
 		}
 	}
 
 	void Start () {
 
+		InitializeAllSpawnPositions (resourceGrid.totalTilesThatAreWater);
+		// Create some random Kamikaze positions
+		GetRandomKamikazeDestinations ();
 		
 		paths = new List<Node>[spawnPositions.Length];
 		kamikazePaths = new List<Node>[spawnPositions.Length]; 
@@ -164,11 +157,11 @@ public class SpawnPoint_Handler : MonoBehaviour {
 
 		if (resourceGrid != null) {
 			// Get Paths to capital from all Spawn Positions
-			for (int x =0; x< spawnPositions.Length; x++) {
+			for (int i =0; i< spawnPositions.Length; i++) {
 				resourceGrid.GenerateWalkPath (resourceGrid.capitalSpawnX, resourceGrid.capitalSpawnY, false, 
-			                              (int)spawnPositions [x].x, (int)spawnPositions [x].y);
+			                              (int)spawnPositions [i].x, (int)spawnPositions [i].y);
 				if (resourceGrid.pathForEnemy != null)
-					FillPath (resourceGrid.pathForEnemy, x, false);
+					FillPath (resourceGrid.pathForEnemy, i, false);
 			}
 
 			// Then get Paths to kamikaze destinations
@@ -179,6 +172,7 @@ public class SpawnPoint_Handler : MonoBehaviour {
 					FillPath (resourceGrid.pathForEnemy, x, true);
 			}
 		}
+
 
 
 	}
@@ -193,16 +187,16 @@ public class SpawnPoint_Handler : MonoBehaviour {
 
 		if (!trueIfKamikaze) {
 			paths [i] = new List<Node> ();
-			for (int y = 0; y < currPath.Count; y++) {
-				paths [i].Add (currPath [y]);
+			for (int p = 0; p < currPath.Count; p++) {
+				paths [i].Add (currPath [p]);
 			}
 
 //			Debug.Log ("PATH TO CAPITAL: " + i + " From: " + paths [i] [0].x + " " + paths [i] [0].y + " To: " + paths [i] [paths [i].Count - 1].x + " " + paths [i] [paths [i].Count - 1].y);
 
 		} else {
 			kamikazePaths [i] = new List<Node> ();
-			for (int y = 0; y < currPath.Count; y++) {
-				kamikazePaths [i].Add (currPath [y]);
+			for (int k = 0; k < currPath.Count; k++) {
+				kamikazePaths [i].Add (currPath [k]);
 			}
 //			Debug.Log ("KAMIKAZE PATH: " + i + " From: " + kamikazePaths [i] [0].x + " " + kamikazePaths [i] [0].y + " To: " + kamikazePaths [i] [kamikazePaths [i].Count - 1].x + " " + kamikazePaths [i] [kamikazePaths [i].Count - 1].y);
 

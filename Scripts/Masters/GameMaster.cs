@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class GameMaster : MonoBehaviour {
 
 	private int _storedCredits;
 	public int curCredits { get { return _storedCredits; }set{ _storedCredits = Mathf.Clamp (value, 0, 100000000); }}
-
+	
 
 	void Awake()
 	{
@@ -15,14 +16,25 @@ public class GameMaster : MonoBehaviour {
 		curCredits = 1000;
 		Debug.Log ("GM is awake!");
 
+//		// Find the main canvas to have access to menus
+//		missionFailedPanel = GameObject.FindGameObjectWithTag("Failed_Panel");
+//		if (missionFailedPanel){ 
+//			Debug.Log("Found Panel!!!");
+//			missionFailedPanel.SetActive(false);
+//		}
+
 	}
 
+	// LEVEL LOADING:
 
 	void OnLevelWasLoaded (int level){
 		if (level == 1) {
 			// When we go into a "level" initialize the supplies bought at the store
-
 			InitializeInventoryAndSupplies();
+
+			// UnPause the game in case it was paused for mission failed
+			if (Time.timeScale == 0)
+				Time.timeScale = 1;
 		}
 	}
 
@@ -41,6 +53,22 @@ public class GameMaster : MonoBehaviour {
 		Player_ResourceManager resourceMan = GameObject.FindGameObjectWithTag("Capital").GetComponent<Player_ResourceManager>();
 		resourceMan.InitStartingResources (inventory.food, curCredits, 10000);
 	}
+
+
+	// Restart a level by loading it again
+	public void MissionRestart()
+	{
+		Application.LoadLevel (1);
+	}
+
+	public void GoBackToShip()
+	{
+		// load the ship level
+		Application.LoadLevel (0);
+	}
+
+
+	// INVENTORY:
 
 	public class ExpeditionInventory
 	{

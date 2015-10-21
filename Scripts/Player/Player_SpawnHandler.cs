@@ -34,8 +34,8 @@ public class Player_SpawnHandler : MonoBehaviour {
 	}
 
 	public void Spawn(){
-		GameObject unitSpawn = objPool.GetObjectForType ("Basic Unit", true);
-		unitSpawn.transform.position = spawnPos;
+		GameObject unitSpawn = objPool.GetObjectForType ("Basic Unit", true, spawnPos);
+	
 		if (unitSpawn != null) {
 			unitSpawn.GetComponent<SelectedUnit_MoveHandler> ().resourceGrid = resourceGrid;
 			unitSpawn.GetComponentInChildren<Player_AttackHandler> ().objPool = objPool;

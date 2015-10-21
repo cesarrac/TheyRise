@@ -99,7 +99,7 @@ public class ObjectPool : MonoBehaviour {
 	/// <param name='onlyPooled'>
 	/// If true, it will only return an object if there is one currently pooled.
 	/// </param>
-	public GameObject GetObjectForType(string objectType, bool onlyPooled)
+	public GameObject GetObjectForType(string objectType, bool onlyPooled, Vector3 newPosition)
 	{
 		
 		for (int i = 0; i < Entries.Length; i++)
@@ -117,6 +117,10 @@ public class ObjectPool : MonoBehaviour {
 				Pool[i].RemoveAt(0);
 				
 				pooledObject.transform.SetParent(null);
+
+				// move it to its new position
+				if (newPosition != Vector3.zero)
+					pooledObject.transform.position = newPosition;
 				
 				pooledObject.SetActive(true);
 				

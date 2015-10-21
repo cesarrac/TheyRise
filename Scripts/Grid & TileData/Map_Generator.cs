@@ -77,17 +77,22 @@ public class Map_Generator : MonoBehaviour {
 		ResourceGrid grid = GetComponent<ResourceGrid> ();
 		grid.tiles = new TileData[width, height];
 
+		int countWaterTiles = 0;
+
 		for (int x =0; x < width; x++) {
 			for (int y =0; y < height; y ++){
 				if (map[x,y] == 0){
 					grid.tiles[x,y] = new TileData(TileData.Types.empty, 0, 1);
 				}else if (map[x,y] == 1){
-					grid.tiles[x,y] = new TileData(TileData.Types.water, 200, 10000);
+					grid.tiles[x,y] = new TileData(TileData.Types.water, 200, 2);
+					countWaterTiles++;
 				}
 			}
 		}
-
 		grid.spawnedTiles = new GameObject[width, height];
+
+		// let the grid know how many of these tiles are water so it can get spawn positions
+		grid.totalTilesThatAreWater = countWaterTiles;
 
 		grid.InitCapitalAndMinerals ();
 	}

@@ -7,15 +7,18 @@ public class Player_GunBaseClass : MonoBehaviour {
 	public class GunStats
 	{
 		float _fireRate;
-		public float curFireRate { get {return _fireRate;} set { _fireRate = Mathf.Clamp(value, 0.5f, 2f);}}
+		public float curFireRate { get {return _fireRate;} set { _fireRate = Mathf.Clamp(value, 0f, 2f);}}
 		public float startingFireRate;
 
 		public int weaponIndex;
+		public string projectileType;
 
-		public void Init(int index)
+		public float kickAmmt;
+
+		public void Init()
 		{
 			curFireRate = startingFireRate;
-			weaponIndex = index;
+		
 		}
 	}
 
@@ -26,51 +29,151 @@ public class Player_GunBaseClass : MonoBehaviour {
 	
 	public LayerMask mask;
 
-	public GameObject target;
+	public GameObject targetHit, targetInSight;
 
-	public float countDownToFire = 0; // counts up in seconds until it reaches fire rate
+	float countDownToFire = 0; // counts up in seconds until it reaches fire rate
 
 	public bool canFire = false;
 
 	public ObjectPool objPool;
 
+	public Vector3 mousePosition;
 
+//	public bool fireButtonPressed;
+
+	public Rigidbody2D rigid_body;
+
+	// Handle the weapon sorting layer from here
+	SpriteRenderer sprite_renderer, parent_srenderer;
+
+	void Awake()
+	{
+		sprite_renderer = GetComponent<SpriteRenderer> ();
+		parent_srenderer = GetComponentInParent<SpriteRenderer> ();
+	}
+	void Update()
+	{
+		// keep sorting order always + 1 players sorting order
+//		sprite_renderer.sortingOrder = parent_srenderer.sortingOrder + 1;
+
+	}
 	public void FollowMouse()
 	{
-		Vector3 targetMouse = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-		float z = Mathf.Atan2 ((targetMouse.y - sightStart.position.y), (targetMouse.x - sightStart.position.x)) * Mathf.Rad2Deg - 90;		
-		sightStart.rotation = Quaternion.AngleAxis (-z, Vector3.forward);
+		mousePosition = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+		float mouseDirection = Mathf.Atan2 ((mousePosition.y - sightStart.position.y), (mousePosition.x - sightStart.position.x)) * Mathf.Rad2Deg - 90;		
+		if (mousePosition != transform.root.position) {
+			sightStart.rotation = Quaternion.AngleAxis (-mouseDirection, Vector3.forward);
+			transform.rotation = Quaternion.AngleAxis (mouseDirection, Vector3.forward);
+		}
 
 	}
 
-	public void CanFire()
+//	public void CanFire()
+//	{	
+//
+//		if (countDownToFire >= gunStats.startingFireRate) {
+//			canFire = true;
+//
+//		} else {
+//			countDownToFire += Time.deltaTime;
+//		}
+//	}
+
+	public void CheckForShoot()
 	{
-		if (countDownToFire >= gunStats.curFireRate) {
-			canFire = true;
+		// BRACKEY's way:
+		if (gunStats.curFireRate == 0) {
+			if (Input.GetButtonDown ("Fire1")){
+				FireWeapon();
+			}
+				
 		} else {
-			countDownToFire += Time.deltaTime;
+			if (Input.GetButton("Fire1") && Time.time > countDownToFire){
+				countDownToFire = Time.time + 1/gunStats.curFireRate;
+				FireWeapon();
+			}
 		}
+	}
+
+	void FireWeapon()
+	{
+		// Fire an Raycast towards the mouse to check for a hit
+		targetInSight = RaycastToGetTarget();
+		// Actually shoot the bullet
+		VisualProjectileShoot ();
+		// Apply gun kick to Player
+		//		GunKick ();
+		StartCoroutine (GunKick ());
 	}
 
 
 	
-	public void ShootRay()
+	GameObject RaycastToGetTarget()
 	{
 		Debug.DrawLine (transform.position, sightEnd.position, Color.cyan);
-		Debug.Log ("Shooting!");
+
 		RaycastHit2D hit = Physics2D.Linecast (transform.position, sightEnd.position, mask.value);
 		if (hit.collider != null) {
 
 			if (hit.collider.CompareTag ("Enemy")) {
 
 				// Linecast HIT an enemy, so store the enemy unit as the target
-				target = hit.collider.gameObject;
+				return hit.collider.gameObject;
 
-				Debug.Log("PLAYER GUN: Hit an enemy!");
+				Debug.Log ("PLAYER GUN: Hit an enemy!");
 
+			} else {
+				return null;
 			}
+		} else {
+			return null;
 		}
 		
+	}
+
+	void VisualProjectileShoot()
+	{
+		string _projectileType = gunStats.projectileType;
+
+		// Get the bullet from object pool using the name of the ammo type
+		GameObject projectile = objPool.GetObjectForType (_projectileType, true, sightStart.position);
+		if (projectile) {
+			Debug.Log("Firing " + _projectileType + " !");
+//			// give it the position of the player
+//			projectile.transform.position = sightStart.position;
+
+			// give it the object pool so it can pool itself
+			projectile.GetComponent<Bullet_FastMoveHandler> ().objPool = objPool;
+
+			// and access to this gun to do damage
+			projectile.GetComponent<Bullet_FastMoveHandler> ().myWeapon = this;
+
+			// and its direction
+			Vector3 dir = mousePosition - transform.position;
+			float angle = Mathf.Atan2 (dir.y, dir.x) * Mathf.Rad2Deg - 90;
+			projectile.transform.eulerAngles = new Vector3 (0, 0, angle);
+
+		} else {
+			Debug.Log("cant find " + _projectileType + " in Pool!");
+		}
+	}
+
+//	void GunKick ()
+//	{
+//		Vector2 kickDirection = mousePosition - transform.root.position;
+//		rigid_body.AddForce (-kickDirection * gunStats.kickAmmt);
+//		rigid_body.AddForce (kickDirection * gunStats.kickAmmt);
+//
+//
+//	}
+
+	IEnumerator GunKick()
+	{
+		Vector2 kickDirection = mousePosition - transform.root.position;
+		rigid_body.AddForce (-kickDirection * gunStats.kickAmmt);
+		yield return new WaitForSeconds (0.1f);
+		rigid_body.AddForce (kickDirection * gunStats.kickAmmt);
+		yield break;
 	}
 
 

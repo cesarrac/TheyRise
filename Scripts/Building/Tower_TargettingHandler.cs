@@ -253,11 +253,8 @@ public class Tower_TargettingHandler : Unit_Base {
 	void MarkTarget(Vector3 target)
 	{
 
-		GameObject marker = objPool.GetObjectForType ("Target Particles", true);
-		if (marker != null ) {
-			//place marker on target
-			marker.transform.position = target;
-		}
+		GameObject marker = objPool.GetObjectForType ("Target Particles", true, target);
+
 
 	}
 
@@ -392,7 +389,7 @@ public class Tower_TargettingHandler : Unit_Base {
 	/// </summary>
 	void VisualShooting(){
 		// Get an explosion for the VFX of laser hitting enemy (Burst particle)
-		GameObject explosion = objPool.GetObjectForType ("Burst Particles", true);
+		GameObject explosion = objPool.GetObjectForType ("Burst Particles", true, targetUnit.transform.position);
 		if (explosion != null) {
 			// Explosion must match the target's layer
 			if (targetUnit != null){
@@ -402,7 +399,6 @@ public class Tower_TargettingHandler : Unit_Base {
 				// assign layer to Particle Renderer
 				explosion.GetComponent<ParticleSystemRenderer>().sortingLayerName = targetLayer;
 
-				explosion.transform.position = targetUnit.transform.position;
 			}else{
 
 				// There is no target, just hits the sightEnd
@@ -411,11 +407,8 @@ public class Tower_TargettingHandler : Unit_Base {
 		}
 
 		// Get the muzzle flash for this gun's laser
-		GameObject muzzle = objPool.GetObjectForType ("MachineGun_ShootFX", true);
-		if (muzzle != null) {
-			// place the flash at the sight start
-			muzzle.transform.position = sightStart.position;
-		}
+		GameObject muzzle = objPool.GetObjectForType ("MachineGun_ShootFX", true, sightStart.position);
+
 	}
 
 

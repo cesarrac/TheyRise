@@ -176,7 +176,7 @@ public class Tower_AoETargettingHandler : Unit_Base {
 
 
 	void VisualShooting(GameObject target){
-		GameObject explosion = objPool.GetObjectForType ("Explosion Particles", true);
+		GameObject explosion = objPool.GetObjectForType ("Explosion Particles", true, target.transform.position);
 		if (explosion != null) {
 			// the Explosion's sorting layer must match the target's layer
 
@@ -186,7 +186,6 @@ public class Tower_AoETargettingHandler : Unit_Base {
 			// apply layer to Particle System Renderer
 			explosion.GetComponent<ParticleSystemRenderer>().sortingLayerName = targetLayer;
 
-			explosion.transform.position = target.transform.position;
 		}
 	}
 
