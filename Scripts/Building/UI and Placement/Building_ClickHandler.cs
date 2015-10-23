@@ -35,7 +35,8 @@ public class Building_ClickHandler : MonoBehaviour {
 	// Storing the building's energy cost here to access it from other scripts
 	public int energyCost {  get; private set; }
 
-	private float disassemblyTime = 10f;
+	public float dissasemblyTime = 20f; // seconds
+	private float dissasemblyCountDown;
 	private bool isDissasembling = false, isFading = false;
 	SpriteRenderer s_renderer;
 
@@ -67,9 +68,12 @@ public class Building_ClickHandler : MonoBehaviour {
 		// Assemble
 		_state = State.ASSEMBLING;
 
+
 	}
 	void Awake()
 	{
+		dissasemblyCountDown = dissasemblyTime;
+
 		_state = State.ASSEMBLING;
 		s_renderer = GetComponent<SpriteRenderer> ();
 		s_renderer.color = B;
@@ -93,7 +97,13 @@ public class Building_ClickHandler : MonoBehaviour {
 
 	void Start () {
 
-		nano_builder = resourceGrid.Hero.GetComponent<NanoBuilding_Handler> ();
+		if (!resourceGrid) {
+			resourceGrid = GameObject.FindGameObjectWithTag ("Map").GetComponent<ResourceGrid> ();
+			nano_builder = resourceGrid.Hero.GetComponent<NanoBuilding_Handler> ();
+		} else {
+			nano_builder = resourceGrid.Hero.GetComponent<NanoBuilding_Handler> ();
+		}
+
 
 		if (buildingCanvas == null) {
 			Debug.Log("CLICK HANDLER: Building Canvas not set!");
@@ -167,8 +177,9 @@ public class Building_ClickHandler : MonoBehaviour {
 
 	void DissasemblyControl()
 	{
-		// NOTE: Right now this is making ALL buildings fade! I would have to type them ALL in...
-		if (myTileType != TileData.Types.capital && myTileType != TileData.Types.generator ) {
+		// NOTE: Affecting ONLY the Battle towers
+		if (myTileType == TileData.Types.machine_gun || myTileType == TileData.Types.sniper || 
+		    myTileType == TileData.Types.cannons || myTileType == TileData.Types.seaWitch) {
 			if (!isDissasembling){
 				Dissasemble ();
 			}
@@ -224,8 +235,8 @@ public class Building_ClickHandler : MonoBehaviour {
 
 	void Dissasemble()
 	{
-		if (disassemblyTime <= 0) {
-			disassemblyTime = 10f;
+		if (dissasemblyCountDown <= 0) {
+			dissasemblyCountDown = dissasemblyTime;
 			isDissasembling = true;
 			isFading = true;
 			// Start making the nanobots for disassembly
@@ -233,7 +244,7 @@ public class Building_ClickHandler : MonoBehaviour {
 
 		} else {
 
-			disassemblyTime -= Time.deltaTime;
+			dissasemblyCountDown -= Time.deltaTime;
 		}
 
 	}

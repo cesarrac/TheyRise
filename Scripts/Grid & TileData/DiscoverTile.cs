@@ -21,9 +21,21 @@ public class DiscoverTile : MonoBehaviour {
 
 	public MasterState_Manager master_state;
 
+	public Resource_Sprite_Handler r_sprite_handler;
+
+	void Awake()
+	{
+//		if (!r_sprite_handler) {
+//			r_sprite_handler = GameObject.FindGameObjectWithTag("Map").GetComponent<Resource_Sprite_Handler>();
+//		}
+	}
+
 	void Start () {
 		fading = true;
 		sr = GetComponent<SpriteRenderer>();
+
+		if (!r_sprite_handler)
+			Debug.Log ("TILE: Dont have the Resource Sprite Handler!");
 	}
 	
 	// Update is called once per frame
@@ -83,7 +95,9 @@ public class DiscoverTile : MonoBehaviour {
 				bClickHandler.resourceGrid = grid;
 				bClickHandler.objPool = objPool;
 
-			} 
+			} else if (tileType == TileData.Types.rock || tileType == TileData.Types.mineral){
+				GetSpriteForRockOrMineral(tileType);
+			}
 			if (tileType == TileData.Types.extractor) {
 				// IF IT'S AN EXTRACTOR it will ALSO need the extractor variables
 				Extractor extra = tileToSpawn.GetComponent<Extractor> ();
@@ -102,6 +116,19 @@ public class DiscoverTile : MonoBehaviour {
 
 			// ADD this tile to the Grid's spawnedTiles array
 			grid.spawnedTiles [mapPosX, mapPosY] = tileToSpawn;
+		}
+	}
+
+	void GetSpriteForRockOrMineral(TileData.Types _tileType)
+	{
+		if (_tileType == TileData.Types.rock) {
+			// Select a random sprite from rock sprites array
+			int randomRock = Random.Range (0, r_sprite_handler.rockSprites.Length - 1);
+			tileToSpawn.GetComponent<SpriteRenderer> ().sprite = r_sprite_handler.rockSprites [randomRock];
+		} else {
+			// Select a random sprite from rock sprites array
+			int randomMineral = Random.Range (0, r_sprite_handler.mineralSprites.Length - 1);
+			tileToSpawn.GetComponent<SpriteRenderer> ().sprite = r_sprite_handler.mineralSprites [randomMineral];
 		}
 	}
 }

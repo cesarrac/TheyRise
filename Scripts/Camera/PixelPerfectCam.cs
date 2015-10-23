@@ -38,6 +38,8 @@ public class PixelPerfectCam : MonoBehaviour {
 	// Map boundaries
 	float left = 20, bottom = 10, right = 40, top = 36;
 
+	public bool lockToMap = false;
+
 	// Camera zoom
 	private bool _zoomedIn;
 	private float _startOrthoSize, _zoomOrthoSize = 8.15f;
@@ -112,10 +114,18 @@ public class PixelPerfectCam : MonoBehaviour {
 			float nextY = Mathf.Round (_pixelLockedPPU * newPosition.y);
 
 		
-
-			// Check that if next move position is one of the map boundaries
-			if (newPosition.x < left || newPosition.x > right || newPosition.y >top  || newPosition.y < bottom) {
-				//Dont move
+			if (lockToMap){
+				// Check that if next move position is one of the map boundaries
+				if (newPosition.x < left || newPosition.x > right || newPosition.y >top  || newPosition.y < bottom) {
+					//Dont move
+				}else{
+					
+					Vector3 pixelPerfectPosition = new Vector3(nextX / _pixelLockedPPU, nextY / _pixelLockedPPU, _cameraHolder.transform.position.z);
+					Vector3 point = _camera.WorldToViewportPoint(pixelPerfectPosition);
+					Vector3 delta = pixelPerfectPosition - _camera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, point.z)); 
+					Vector3 destination = _cameraHolder.position + delta;
+					transform.position = Vector3.SmoothDamp(transform.position, destination, ref velocity, dampTime);
+				}
 			} else {
 //				_cameraHolder.transform.position = new Vector3 (nextX / _pixelLockedPPU, nextY / _pixelLockedPPU, _cameraHolder.transform.position.z);
 

@@ -7,6 +7,13 @@ public class GameMaster : MonoBehaviour {
 	private int _storedCredits;
 	public int curCredits { get { return _storedCredits; }set{ _storedCredits = Mathf.Clamp (value, 0, 100000000); }}
 	
+	public ResourceGrid resourceGrid;
+	public Building_UIHandler building_UIHandler;
+	public Player_GunBaseClass player_weapon;
+
+	public bool _canFireWeapon;
+
+	bool levelInitialized;
 
 	void Awake()
 	{
@@ -16,12 +23,6 @@ public class GameMaster : MonoBehaviour {
 		curCredits = 1000;
 		Debug.Log ("GM is awake!");
 
-//		// Find the main canvas to have access to menus
-//		missionFailedPanel = GameObject.FindGameObjectWithTag("Failed_Panel");
-//		if (missionFailedPanel){ 
-//			Debug.Log("Found Panel!!!");
-//			missionFailedPanel.SetActive(false);
-//		}
 
 	}
 
@@ -54,6 +55,16 @@ public class GameMaster : MonoBehaviour {
 		resourceMan.InitStartingResources (inventory.food, curCredits, 10000);
 	}
 
+//	void InitializeHeroAndResourceGrid()
+//	{
+//		resourceGrid = GameObject.FindGameObjectWithTag ("Map").GetComponent<ResourceGrid> ();
+//		player_weapon = GameObject.FindGameObjectWithTag ("Citizen").GetComponentInChildren<Player_GunBaseClass> ();
+//		building_UIHandler = GameObject.FindGameObjectWithTag ("Capital").GetComponent<Building_UIHandler> ();
+//
+//		Debug.Log ("GM: Initialized Grid, Hero & B UI");
+//		// TODO: Spawn the Hero here
+//	}
+
 
 	// Restart a level by loading it again
 	public void MissionRestart()
@@ -67,6 +78,29 @@ public class GameMaster : MonoBehaviour {
 		Application.LoadLevel (0);
 	}
 
+	// DURING A LEVEL:
+	
+	void Update()
+	{
+		if (resourceGrid && building_UIHandler) {
+			if (Application.loadedLevel == 1)
+				CheckIfBuilding (); // this is so Player can know if they can fire or not
+		}
+	}
+
+	void CheckIfBuilding()
+	{
+
+
+			Debug.Log ("GM: Checking if Building!");
+			if (resourceGrid.terraformer_built && !building_UIHandler.currentlyBuilding) {
+				_canFireWeapon = true;
+			} else {
+				_canFireWeapon = false;
+			}
+		
+
+	}
 
 	// INVENTORY:
 

@@ -94,7 +94,7 @@ public class Map_Generator : MonoBehaviour {
 		// let the grid know how many of these tiles are water so it can get spawn positions
 		grid.totalTilesThatAreWater = countWaterTiles;
 
-		grid.InitCapitalAndMinerals ();
+		grid.InitializeRockandMinerals ();
 	}
 	
 	// Gets rid of smaller patches of land (small defined by threshold)
@@ -112,7 +112,7 @@ public class Map_Generator : MonoBehaviour {
 		}
 		
 		List<List<Coord>> roomRegions = GetRegions (0);
-		int roomThresholdSize = 50;
+		int roomThresholdSize = 10;
 		List<Room> survivingRooms = new List<Room> ();
 		
 		foreach (List<Coord> roomRegion in roomRegions) {

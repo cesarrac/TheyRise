@@ -15,9 +15,6 @@ public class SpawnPoint_Handler : MonoBehaviour {
 
 	public Vector2[] kamikazeDestinations;
 
-	Queue<List<Node>> pathQueue = new Queue<List<Node>> ();
-	Queue<List<Node>> kamikazePathQueue = new Queue<List<Node>> ();
-
 	public Map_Generator map_generator;
 
 	int map_width, map_height;
@@ -26,6 +23,10 @@ public class SpawnPoint_Handler : MonoBehaviour {
 	int minSpawnX, minSpawnY, maxSpawnX, maxSpawnY;
 
 	public int numberOfSpawnPositions = 5;
+
+	int _index = 0;
+
+	bool canGetPath, canGetKamikazePath;
 
 	void Awake(){
 
@@ -52,20 +53,8 @@ public class SpawnPoint_Handler : MonoBehaviour {
 		if (resourceGrid == null)
 			resourceGrid = GameObject.FindGameObjectWithTag ("Map").GetComponent<ResourceGrid> ();
 
-
-
-		// Store the paths (List<Node>) in a queue 
-//
-//		foreach (List<Node> path in paths) {
-//			pathQueue.Enqueue(path);
-//		}
-//
-//
-//		foreach (List<Node> path in paths) {
-//			kamikazePathQueue.Enqueue(path);
-//		}
 		
-	
+
 	}
 
 
@@ -171,16 +160,69 @@ public class SpawnPoint_Handler : MonoBehaviour {
 				if (resourceGrid.pathForEnemy != null)
 					FillPath (resourceGrid.pathForEnemy, x, true);
 			}
+
+//			canGetPath = true;
+//			_index = 0;
 		}
 
-
-
 	}
 
-	void GetNextInQueue ()
-	{
+//	void Update()
+//	{
+//		if (canGetPath) {
+//			StartCoroutine(GetPath());
+//		}
+//
+//		if (canGetKamikazePath && !canGetPath) {
+//			StartCoroutine(GetKamikazePath());
+//		}
+//		Debug.Log (_index);
+//	}
 
-	}
+//	IEnumerator GetPath()
+//	{
+//		canGetPath = false;
+//
+//		// get a path
+//		resourceGrid.GenerateWalkPath(resourceGrid.capitalSpawnX, resourceGrid.capitalSpawnY, false, 
+//		                              (int)spawnPositions [_index].x, (int)spawnPositions [_index].y);
+//		yield return new WaitForSeconds (0.05f);
+//		// fill path
+//		if (resourceGrid.pathForEnemy != null)
+//			FillPath (resourceGrid.pathForEnemy, _index, false);
+//
+//		if (_index < numberOfSpawnPositions) {
+//			_index++;
+//			canGetPath = true;
+//		}else{
+//			_index = 0;
+//			canGetKamikazePath = true;
+//
+//			yield break;
+//		}
+//	}
+//
+//	
+//	IEnumerator GetKamikazePath()
+//	{
+//		canGetKamikazePath = false;
+//		
+//		// get a path
+//		resourceGrid.GenerateWalkPath ((int)kamikazeDestinations[_index].x, (int)kamikazeDestinations[_index].y, false, 
+//		                               (int)spawnPositions [_index].x, (int)spawnPositions [_index].y);
+//		yield return new WaitForSeconds (0.05f);
+//		// fill path
+//		if (resourceGrid.pathForEnemy != null)
+//			FillPath (resourceGrid.pathForEnemy, _index, true);
+//		
+//		if (_index < numberOfSpawnPositions) {
+//			_index++;
+//			canGetKamikazePath = true;
+//		}else{
+//			
+//			yield break;
+//		}
+//	}
 
 
 	void FillPath(List<Node> currPath, int i, bool trueIfKamikaze){

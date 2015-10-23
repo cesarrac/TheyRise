@@ -19,7 +19,13 @@ public class Mesh_Generator : MonoBehaviour {
 	
 	List<List<int>> outlines = new List<List<int>> ();
 	HashSet<int> checkedVertices = new HashSet<int> ();
-	
+
+	public Sprite[] shoreTiles;
+	Vector3 nextVert;
+	public GameObject shorefabtest;
+	public Transform shoreHolder;
+
+	public ObjectPool objPool;
 	
 	public void GenerateMesh(int[,] map, float squareSize){
 		
@@ -64,7 +70,8 @@ public class Mesh_Generator : MonoBehaviour {
 		}
 		
 	}
-	
+
+
 	void Generate2DColliders()
 	{
 		EdgeCollider2D[] currentColliders = gameObject.GetComponents<EdgeCollider2D> ();
@@ -80,12 +87,56 @@ public class Mesh_Generator : MonoBehaviour {
 			
 			for (int i = 0; i < outline.Count; i++){
 				edgepoints[i] = new Vector2(vertices[outline[i]].x,vertices[outline[i]].z) ;
-				/* This is a good spot to grab the x and z to get a position and an angle for the shore lines!!! */
+
+				if (i + 1 < outline.Count){
+					GenerateShoreLine(outline, edgepoints[i].x, edgepoints[i].y, i + 1);
+					
+				}else{
+					GenerateShoreLine(outline, edgepoints[i].x, edgepoints[i].y, i);
+					
+				}
+
 			}
 			edgeCollider.points = edgepoints;
+
+			// move the shore holder to the map's position to set the shore tiles to the right place
+			shoreHolder.transform.localPosition = transform.position;
 		}
 	}
-	
+
+	void GenerateShoreLine(List<int> outline, float edgePointX, float edgePointY, int i)
+	{
+		// get the shore fab from the obj pool and assign it a sprite from the shore sheet
+//		GameObject shore = objPool.GetObjectForType ("shore_fab", false, new Vector3(edgePointX,edgePointY, 0.0f));
+		GameObject shore = Instantiate (shorefabtest, new Vector3 (edgePointX, edgePointY, 0.0f), Quaternion.identity) as GameObject;
+		int randomSpriteSelection = Random.Range (0, shoreTiles.Length - 1);
+		if (shore) {
+			shore.GetComponent<SpriteRenderer> ().sprite = shoreTiles [randomSpriteSelection];
+
+			shore.transform.SetParent(shoreHolder);
+		
+			// Using the NEXT item in the vertices array I can know which direction the edge is heading to
+		
+			nextVert = new Vector3 (vertices [outline [i]].x, vertices [outline [i]].z, 0.0f);
+		
+		
+			// Give the shore its angle 
+			Vector3 dir = nextVert - shore.transform.position;
+			float angle = Mathf.Atan2 (dir.y, dir.x) * Mathf.Rad2Deg;
+			shore.transform.eulerAngles = new Vector3 (0, 0, angle);
+		
+			/* To figure out its X scale we need to get the distance from the new X position (bottom left corner)
+				 * to the last x position. Then add that distance to the x scale of the shore. */
+			// distance = newX - lastX
+			//				if (i > 0){
+			//					float distanceFromLastShore = Vector2.Distance(edgepoints[i], edgepoints[i-1]);
+			//					shore.transform.localScale = new Vector3(shore.transform.localScale.x + distanceFromLastShore, 1, 1);
+			//				}
+		} else {
+			Debug.Log ("Could not get shore from pool!");
+		}
+	}
+
 	void CreateWallMesh()
 	{
 		

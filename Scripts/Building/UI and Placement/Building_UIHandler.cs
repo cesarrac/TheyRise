@@ -58,11 +58,16 @@ public class Building_UIHandler : MonoBehaviour {
 
 	public string[] buildingNames;
 
-	public bool currentlyBuilding; // turns true when Player has half-built building on mouse / is building
+	public bool currentlyBuilding = false; // turns true when Player has half-built building on mouse / is building
 
+	GameMaster game_master;
 
 	void Awake(){
 		canvasRectTransform = canvas.transform as RectTransform;
+
+		
+		game_master = GameObject.FindGameObjectWithTag ("GM").GetComponent<GameMaster> ();
+		game_master.building_UIHandler = this;
 	}
 
 	void Start () {
@@ -203,6 +208,7 @@ public class Building_UIHandler : MonoBehaviour {
 					bPosHand.currOreCost = extractCost[0];
 					bPosHand.objPool = objPool;
 					bPosHand.buildingUI = this;
+
 				}
 			}else{
 				int diff = extractCost[0] - resourceManager.ore;

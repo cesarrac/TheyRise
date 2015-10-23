@@ -18,6 +18,8 @@ public class Player_AssaultRifle : Player_GunBaseClass {
 	void Start()
 	{
 		objPool = GetComponentInParent<Player_HeroAttackHandler> ().objPool;
+		if (!gameMaster)
+			gameMaster = GameObject.FindGameObjectWithTag ("GM").GetComponent<GameMaster> ();
 	}
 	
 	// Check for a HIT:

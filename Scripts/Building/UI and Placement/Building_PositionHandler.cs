@@ -201,14 +201,16 @@ public class Building_PositionHandler : MonoBehaviour {
 //			resourceManager.ChargeOreorWater("Ore", -currOreCost);
 			resourceManager.ChangeResource("Ore", -currOreCost);
 
+			// Right BEFORE pooling this object we tell Building UI that we are NOT currently building anymore
+			buildingUI.currentlyBuilding = false;
+
 			// stop following and tell grid to swap this tile to this new building
 			mapPosX = mX;
 			mapPosY = mY;
 			resourceGrid.SwapTileType (mX, mY, tileType);
 			followMouse = false;
 
-			// Right BEFORE pooling this object we tell Building UI that we are NOT currently building anymore
-			buildingUI.currentlyBuilding = false;
+		
 
 			// Pool this object
 			PoolObject (gameObject); // Pool this because resourceGrid just discovered the tile/building for us

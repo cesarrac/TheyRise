@@ -46,15 +46,31 @@ public class Player_GunBaseClass : MonoBehaviour {
 	// Handle the weapon sorting layer from here
 	SpriteRenderer sprite_renderer, parent_srenderer;
 
+	public Transform bulletTrailFab;
+
+	public GameMaster gameMaster;
+
 	void Awake()
 	{
 		sprite_renderer = GetComponent<SpriteRenderer> ();
 		parent_srenderer = GetComponentInParent<SpriteRenderer> ();
+
+		gameMaster = GetComponentInParent<Player_HeroAttackHandler> ().gameMaster;
+
 	}
+
 	void Update()
 	{
 		// keep sorting order always + 1 players sorting order
 //		sprite_renderer.sortingOrder = parent_srenderer.sortingOrder + 1;
+
+//		if (gameMaster) {
+//			if (gameMaster._canFireWeapon){
+//				canFire = true;
+//			}else{
+//				canFire = false;
+//			}
+//		}
 
 	}
 	public void FollowMouse()
@@ -81,18 +97,29 @@ public class Player_GunBaseClass : MonoBehaviour {
 
 	public void CheckForShoot()
 	{
+
 		// BRACKEY's way:
 		if (gunStats.curFireRate == 0) {
-			if (Input.GetButtonDown ("Fire1")){
-				FireWeapon();
+			if (Input.GetButtonDown ("Fire1")) {
+				if (gameMaster){
+					if (gameMaster._canFireWeapon) 
+						FireWeapon ();
+				}else{
+					Debug.Log("GUN: GM is null!!!");
+				}
 			}
-				
+			
 		} else {
-			if (Input.GetButton("Fire1") && Time.time > countDownToFire){
-				countDownToFire = Time.time + 1/gunStats.curFireRate;
-				FireWeapon();
+			if (Input.GetButton ("Fire1") && Time.time > countDownToFire) {
+				if (gameMaster){
+					if (gameMaster._canFireWeapon) {
+						countDownToFire = Time.time + 1 / gunStats.curFireRate;
+						FireWeapon ();
+					}
+				}
 			}
 		}
+
 	}
 
 	void FireWeapon()
@@ -135,6 +162,7 @@ public class Player_GunBaseClass : MonoBehaviour {
 	{
 		string _projectileType = gunStats.projectileType;
 
+
 		// Get the bullet from object pool using the name of the ammo type
 		GameObject projectile = objPool.GetObjectForType (_projectileType, true, sightStart.position);
 		if (projectile) {
@@ -149,9 +177,19 @@ public class Player_GunBaseClass : MonoBehaviour {
 			projectile.GetComponent<Bullet_FastMoveHandler> ().myWeapon = this;
 
 			// and its direction
-			Vector3 dir = mousePosition - transform.position;
+			Vector3 dir = mousePosition - sightStart.position;
 			float angle = Mathf.Atan2 (dir.y, dir.x) * Mathf.Rad2Deg - 90;
 			projectile.transform.eulerAngles = new Vector3 (0, 0, angle);
+
+			// Now fire the bullet trail right behind it
+			GameObject bulletTrail = objPool.GetObjectForType("BulletTrail", true, projectile.transform.position);
+			if (bulletTrail){
+				// and its direction
+				float trailAngle = Mathf.Atan2 (dir.y, dir.x) * Mathf.Rad2Deg;
+				bulletTrail.transform.eulerAngles = new Vector3 (0, 0, trailAngle);
+				bulletTrail.transform.SetParent(projectile.transform);
+				bulletTrail.GetComponent<EasyPool>().objPool = objPool;
+			}
 
 		} else {
 			Debug.Log("cant find " + _projectileType + " in Pool!");

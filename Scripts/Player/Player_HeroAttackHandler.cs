@@ -13,10 +13,14 @@ public class Player_HeroAttackHandler : Unit_Base {
 	public GameObject _curTool, _curWeapon1, _curWeapon2;
 	public static float scrollWheel { get { return Input.mouseScrollDelta.y / 10; } }
 
+	public GameMaster gameMaster;
+
 	void Awake(){
 
 		anim = GetComponent<Animator> ();
 
+		if (!gameMaster)
+			gameMaster = GameObject.FindGameObjectWithTag ("GM").GetComponent<GameMaster> ();
 	}
 
 	void Start () {
